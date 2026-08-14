@@ -27,6 +27,7 @@
             color: var(--text-main);
             line-height: 1.6;
             padding: 40px 20px;
+            min-height: 100vh;
         }
 
         .container {
@@ -62,6 +63,7 @@
             background: linear-gradient(135deg, #ffffff 0%, #9ca3af 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .hero-desc {
@@ -87,6 +89,7 @@
             flex-direction: column;
             justify-content: space-between;
             transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            min-height: 280px;
         }
 
         .card:hover {
@@ -125,7 +128,7 @@
         }
 
         .btn-launch {
-            display: inline-block;
+            display: block;
             text-align: center;
             width: 100%;
             padding: 12px 0;
@@ -134,11 +137,12 @@
             text-decoration: none;
             font-weight: 600;
             border-radius: 8px;
-            transition: opacity 0.2s;
+            transition: opacity 0.2s, transform 0.2s;
         }
 
         .btn-launch:hover {
             opacity: 0.9;
+            transform: translateY(-1px);
         }
 
         footer {
@@ -148,10 +152,18 @@
             color: var(--text-muted);
             font-size: 0.9rem;
         }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 2.1rem;
+            }
+            body {
+                padding: 24px 16px;
+            }
+        }
     </style>
 </head>
 <body>
-
     <div class="container">
         <header>
             <span class="badge">Interactive Web & Simulations</span>
@@ -160,28 +172,52 @@
         </header>
 
         <div class="projects-grid">
-            
             <!-- Project 1: Headphones -->
-<a href="headphones.html" target="_blank" class="btn-launch">Launch Interactive Demo ↗</a>
-</div>
-</div>
+            <div class="card">
+                <div>
+                    <div class="tag-group">
+                        <span class="tag">3D WebGL</span>
+                        <span class="tag">E-Commerce</span>
+                        <span class="tag">Dynamic Pricing</span>
+                    </div>
+                    <h2>Cyberpunk Headphones Configurator</h2>
+                    <p>Real-time 3D product customizer with dynamic pricing calculations, multi-material switching, and exploded assembly view.</p>
+                </div>
+                <a href="headphones.html" target="_blank" class="btn-launch">Launch Interactive Demo ↗</a>
+            </div>
 
-<!-- Project 2: Snowball Effect -->
-<a href="snowball.html" target="_blank" class="btn-launch">Launch Interactive Demo ↗</a>
-</div>
-</div>
+            <!-- Project 2: Snowball Effect -->
+            <div class="card">
+                <div>
+                    <div class="tag-group">
+                        <span class="tag">FinTech</span>
+                        <span class="tag">Interactive Explainer</span>
+                        <span class="tag">Math Engine</span>
+                    </div>
+                    <h2>The Snowball Effect</h2>
+                    <p>Financial visualizer converting complex compound interest and inflation formulas into an intuitive, real-time comparison engine.</p>
+                </div>
+                <a href="snowball.html" target="_blank" class="btn-launch">Launch Interactive Demo ↗</a>
+            </div>
 
-<!-- Project 3: Stellar Collapse -->
-<a href="stellar.html" target="_blank" class="btn-launch">Launch Interactive Demo ↗</a>
-</div>
-</div>
+            <!-- Project 3: Stellar Collapse -->
+            <div class="card">
+                <div>
+                    <div class="tag-group">
+                        <span class="tag">EdTech</span>
+                        <span class="tag">Astrophysics</span>
+                        <span class="tag">Canvas Simulation</span>
+                    </div>
+                    <h2>Stellar Collapse Simulator</h2>
+                    <p>Interactive scientific simulation modeling core-collapse supernova, particle shockwaves, and black hole formation based on stellar mass.</p>
+                </div>
+                <a href="stellar.html" target="_blank" class="btn-launch">Launch Interactive Demo ↗</a>
+            </div>
+        </div>
 
-</div>
-
-<footer>
-    <p>© 2026 Interactive Portfolio</p>
-</footer>
-</div>
-
+        <footer>
+            <p>© 2026 Interactive Portfolio</p>
+        </footer>
+    </div>
 </body>
 </html>
