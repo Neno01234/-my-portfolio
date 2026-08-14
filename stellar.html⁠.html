@@ -1,0 +1,2345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stellar Collapse: From Stars to Black Holes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-deep: #050510;
+      --bg-card: #0c0c1a;
+      --accent: #7b5cff;
+      --accent-glow: #9d7dff;
+      --wd: #a8d8ff;
+      --ns: #ff9f43;
+      --bh: #ff3b5c;
+      --text: #e8e8f0;
+      --muted: #8a8aa0;
+      --success: #3dffa8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-deep);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Starfield background */
+    #starfield {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Typography */
+    h1, h2, h3 {
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 0.05em;
+    }
+
+    /* Layout */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Hero */
+    .hero {
+      min-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 4rem 1.5rem 2rem;
+      position: relative;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 6vw, 3.8rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 0%, var(--accent-glow) 50%, #ff6b9d 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+      line-height: 1.15;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--muted);
+      max-width: 620px;
+      margin-bottom: 2.5rem;
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      animation: bounce 2s infinite;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+
+    /* Sections */
+    section {
+      padding: 4rem 0;
+    }
+
+    .section-title {
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+      color: var(--accent-glow);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-title::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--accent);
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid rgba(123, 92, 255, 0.15);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    /* Interactive Simulator */
+    .simulator {
+      background: linear-gradient(180deg, #0a0a18 0%, #0d0d22 100%);
+      border: 1px solid rgba(123, 92, 255, 0.25);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 0 60px rgba(123, 92, 255, 0.08);
+    }
+
+    .sim-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      align-items: flex-end;
+      margin-bottom: 2rem;
+    }
+
+    .control-group {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .mass-display {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      color: var(--accent-glow);
+      margin-bottom: 0.5rem;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 8px;
+      background: #1a1a30;
+      border-radius: 4px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      background: var(--accent);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 12px var(--accent);
+      transition: transform 0.15s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    .btn {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.9rem 1.8rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.25s;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #a855f7);
+      color: white;
+      box-shadow: 0 4px 20px rgba(123, 92, 255, 0.4);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(123, 92, 255, 0.55);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid #2a2a45;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+    .btn-secondary:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    /* Stage visualization */
+    .stage-area {
+      position: relative;
+      height: 380px;
+      background: radial-gradient(ellipse at center, #0f0f28 0%, #050510 70%);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    #simCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .stage-label {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: rgba(0,0,0,0.6);
+      padding: 0.4rem 0.9rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: var(--accent-glow);
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 0.05em;
+      z-index: 5;
+    }
+
+    .outcome-badge {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+      padding: 0.5rem 1.1rem;
+      border-radius: 8px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      z-index: 5;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.4s;
+    }
+
+    .outcome-badge.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .outcome-badge.wd { background: rgba(168, 216, 255, 0.2); color: var(--wd); border: 1px solid var(--wd); }
+    .outcome-badge.ns { background: rgba(255, 159, 67, 0.2); color: var(--ns); border: 1px solid var(--ns); }
+    .outcome-badge.bh { background: rgba(255, 59, 92, 0.2); color: var(--bh); border: 1px solid var(--bh); }
+
+    .stage-caption {
+      position: absolute;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 90%;
+      text-align: center;
+      font-size: 0.82rem;
+      color: rgba(220, 220, 255, 0.85);
+      background: rgba(0, 0, 0, 0.45);
+      padding: 0.45rem 1rem;
+      border-radius: 20px;
+      z-index: 5;
+      pointer-events: none;
+      transition: opacity 1s ease;
+      line-height: 1.35;
+      opacity: 1;
+    }
+    .stage-caption.faded {
+      opacity: 0;
+    }
+
+    .mass-presets {
+      display: flex;
+      gap: 0.45rem;
+      margin-top: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .preset-btn {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 20px;
+      border: 1px solid rgba(123, 92, 255, 0.35);
+      background: rgba(123, 92, 255, 0.08);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .preset-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+      background: rgba(123, 92, 255, 0.18);
+    }
+
+    .kbd-hint {
+      font-size: 0.72rem;
+      color: var(--muted);
+      opacity: 0.7;
+    }
+
+    /* Info panel under sim */
+    .sim-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      .sim-info { grid-template-columns: 1fr; }
+    }
+
+    .info-box {
+      background: rgba(123, 92, 255, 0.06);
+      border-radius: 12px;
+      padding: 1.1rem 1.3rem;
+      border-left: 3px solid var(--accent);
+    }
+
+    .info-box h4 {
+      font-size: 0.9rem;
+      color: var(--accent-glow);
+      margin-bottom: 0.4rem;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .info-box p {
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    /* Outcome cards */
+    .outcome-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+    }
+
+    .outcome-card {
+      background: var(--bg-card);
+      border-radius: 14px;
+      padding: 1.5rem;
+      border: 1px solid transparent;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+
+    .outcome-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .outcome-card.wd { border-color: rgba(168, 216, 255, 0.3); }
+    .outcome-card.ns { border-color: rgba(255, 159, 67, 0.3); }
+    .outcome-card.bh { border-color: rgba(255, 59, 92, 0.3); }
+
+    .outcome-card h3 {
+      font-size: 1.15rem;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .outcome-card.wd h3 { color: var(--wd); }
+    .outcome-card.ns h3 { color: var(--ns); }
+    .outcome-card.bh h3 { color: var(--bh); }
+
+    .mass-range {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+      margin: 2rem 0;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 1.75rem;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -1.65rem;
+      top: 6px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+    }
+
+    .timeline-item h4 {
+      font-size: 1.05rem;
+      margin-bottom: 0.3rem;
+      color: var(--text);
+    }
+
+    .timeline-item p {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    /* Physics formulas */
+    .formula {
+      background: #0a0a16;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      font-family: 'Orbitron', monospace;
+      font-size: 1.05rem;
+      text-align: center;
+      margin: 1rem 0;
+      border: 1px solid #1e1e35;
+      color: var(--accent-glow);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 3rem 1.5rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+      border-top: 1px solid #151525;
+      margin-top: 2rem;
+    }
+
+    footer a {
+      color: var(--accent-glow);
+      text-decoration: none;
+    }
+
+    /* Progress bar for animation */
+    .progress-track {
+      height: 4px;
+      background: #1a1a30;
+      border-radius: 2px;
+      margin-top: 1rem;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), #ff6b9d);
+      transition: width 0.3s linear;
+    }
+
+    /* Tooltip for thresholds */
+    .threshold-markers {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+      font-family: 'Orbitron', sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="starfield"></canvas>
+
+  <!-- Hero -->
+  <header class="hero">
+    <h1>Stellar Collapse</h1>
+    <p>Explore how the mass of a star decides its final fate — white dwarf, neutron star, or black hole — through an interactive core-collapse simulation.</p>
+    <button class="btn btn-primary" onclick="document.getElementById('simulator').scrollIntoView({behavior:'smooth'})">
+      Launch Simulator
+    </button>
+    <div class="scroll-hint">↓ Scroll to learn</div>
+  </header>
+
+  <main class="container">
+    <!-- Science Overview -->
+    <section id="overview">
+      <h2 class="section-title">How Stars Die</h2>
+      <div class="card">
+        <p style="margin-bottom: 1rem;">
+          A star spends most of its life in a delicate balance: the outward pressure from nuclear fusion in its core fights the inward pull of gravity. When the fuel runs out, gravity wins. What happens next depends almost entirely on the star’s <strong>initial mass</strong>.
+        </p>
+        <p>
+          Low-mass stars gently shed their outer layers and leave behind a dense white dwarf. More massive stars undergo catastrophic core collapse, triggering a supernova and leaving either a neutron star or, if the remnant is heavy enough, a black hole.
+        </p>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <h4>1. Fuel Exhaustion</h4>
+          <p>Hydrogen fusion ceases in the core. The core contracts and heats up, igniting heavier elements in shells around it. The star expands into a red giant or supergiant.</p>
+        </div>
+        <div class="timeline-item">
+          <h4>2. Core Collapse</h4>
+          <p>When iron is produced in the most massive stars, fusion no longer releases energy. Electron degeneracy or neutron degeneracy can temporarily halt the collapse — or fail completely.</p>
+        </div>
+        <div class="timeline-item">
+          <h4>3. Remnant Formation</h4>
+          <p>The final object is determined by whether electron degeneracy pressure, neutron degeneracy pressure, or neither can support the remaining mass against gravity.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Module -->
+    <section id="simulator">
+      <h2 class="section-title">Interactive Collapse Simulator</h2>
+      <div class="simulator">
+        <div class="sim-controls">
+          <div class="control-group">
+            <label for="massSlider">Initial Stellar Mass</label>
+            <div class="mass-display"><span id="massValue">12</span> M<sub>☉</sub></div>
+            <input type="range" id="massSlider" min="1" max="40" step="0.5" value="12" />
+            <div class="threshold-markers">
+              <span>1</span>
+              <span style="color:var(--wd)">~8 WD</span>
+              <span style="color:var(--ns)">~25 NS</span>
+              <span style="color:var(--bh)">40 BH</span>
+            </div>
+            <div class="mass-presets">
+              <button type="button" class="preset-btn" onclick="setMass(1)">☉ Sun-like</button>
+              <button type="button" class="preset-btn" onclick="setMass(12)">Massive</button>
+              <button type="button" class="preset-btn" onclick="setMass(30)">Very Massive</button>
+            </div>
+          </div>
+          <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+            <button class="btn btn-primary" id="simBtn" onclick="runSimulation()">Simulate Collapse</button>
+            <button class="btn btn-secondary" id="resetBtn" onclick="resetSim()" disabled>Reset</button>
+            <span class="kbd-hint">Space to run / reset</span>
+          </div>
+        </div>
+
+        <div class="stage-area">
+          <div class="stage-label" id="stageLabel">Ready</div>
+          <div class="stage-caption" id="stageCaption">Choose a mass and press Simulate</div>
+          <canvas id="simCanvas"></canvas>
+          <div class="outcome-badge" id="outcomeBadge"></div>
+        </div>
+
+        <div class="progress-track">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="sim-info" style="margin-top:1.5rem;">
+          <div class="info-box">
+            <h4>Predicted Fate</h4>
+            <p id="fateText">Neutron star after core-collapse supernova</p>
+          </div>
+          <div class="info-box">
+            <h4>Key Physics</h4>
+            <p id="physicsText">Iron core exceeds Chandrasekhar mass and collapses. Neutron degeneracy + nuclear forces halt the collapse at ~10–15 km radius. Shock wave drives a supernova.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Outcomes Deep Dive -->
+    <section id="outcomes">
+      <h2 class="section-title">The Three Possible Endpoints</h2>
+      <div class="outcome-grid">
+        <div class="outcome-card wd">
+          <h3>⚪ White Dwarf</h3>
+          <div class="mass-range">Progenitor ≲ 8 M☉</div>
+          <p>Electron degeneracy pressure supports the remnant. Typical mass ~0.6 M☉, size comparable to Earth. The outer layers are ejected as a beautiful planetary nebula. Our Sun will become a white dwarf in about 5 billion years.</p>
+          <p style="margin-top:0.75rem; font-size:0.9rem; color:var(--muted);">Limit: Chandrasekhar mass ≈ 1.4 M☉</p>
+        </div>
+        <div class="outcome-card ns">
+          <h3>🟠 Neutron Star</h3>
+          <div class="mass-range">Progenitor ~8–25 M☉</div>
+          <p>After a spectacular core-collapse supernova, the core is crushed to nuclear densities. Neutrons provide the degeneracy pressure. A teaspoon of neutron-star material would weigh billions of tons. Many become pulsars.</p>
+          <p style="margin-top:0.75rem; font-size:0.9rem; color:var(--muted);">Limit: TOV mass ≈ 2.0–2.5 M☉ (non-rotating)</p>
+        </div>
+        <div class="outcome-card bh">
+          <h3>🔴 Black Hole</h3>
+          <div class="mass-range">Progenitor ≳ 25 M☉</div>
+          <p>When even neutron degeneracy fails, the core collapses past the event horizon. Nothing, not even light, can escape. Stellar-mass black holes typically range from ~5 to several tens of solar masses, depending on mass loss and fallback.</p>
+          <p style="margin-top:0.75rem; font-size:0.9rem; color:var(--muted);">Schwarzschild radius R<sub>s</sub> = 2GM/c² ≈ 2.95 km × (M/M☉)</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Deeper Physics -->
+    <section id="physics">
+      <h2 class="section-title">The Physics of the Final Collapse</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="color:var(--wd); margin-bottom:0.75rem;">Electron Degeneracy (White Dwarfs)</h3>
+          <p>Pauli exclusion principle forces electrons into higher momentum states as density rises. This quantum pressure is independent of temperature. When the core mass exceeds ~1.4 M☉, electrons become ultra-relativistic and the pressure can no longer support the star → collapse continues.</p>
+        </div>
+        <div class="card">
+          <h3 style="color:var(--ns); margin-bottom:0.75rem;">Neutron Degeneracy (Neutron Stars)</h3>
+          <p>At nuclear densities (~10¹⁴ g/cm³), protons and electrons combine into neutrons. Neutron degeneracy pressure (plus strong nuclear repulsion) can support objects up to the Tolman–Oppenheimer–Volkoff limit. Beyond that, collapse is inevitable.</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1.5rem;">
+        <h3 style="color:var(--bh); margin-bottom:0.75rem;">Event Horizon & Singularity</h3>
+        <p>Once the collapsing core’s radius falls inside its Schwarzschild radius, an event horizon forms. From the outside, time appears to freeze at the horizon. Inside, general relativity predicts a singularity — a region of infinite curvature where the known laws of physics break down.</p>
+        <div class="formula">
+          R<sub>s</sub> = 2GM / c² ≈ 2.95 (M / M☉) km
+        </div>
+        <p style="font-size:0.9rem; color:var(--muted);">
+          For a 10 M☉ black hole the event horizon is only ~30 km across — smaller than a large city, yet containing ten times the mass of the Sun.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:1.5rem;">
+        <h3 style="color:var(--accent-glow); margin-bottom:0.75rem;">Photon Sphere Dynamics</h3>
+        <p>
+          Just outside the event horizon lies the <strong>photon sphere</strong> at <em>r = 1.5 R<sub>s</sub></em> (for a non-spinning black hole). Here, gravity is strong enough that light can travel in unstable circular orbits.
+        </p>
+        <div class="formula">
+          r<sub>photon</sub> = 3GM / c² = 1.5 R<sub>s</sub>
+        </div>
+        <p style="margin-top:0.75rem; color:var(--muted); font-size:0.95rem;">
+          These orbits are <em>unstable</em>: a tiny inward perturbation and the photon falls through the horizon; a tiny outward one and it escapes to infinity. Photons that skim this region can loop several times, creating the bright photon ring seen in Event Horizon Telescope images. In the simulator, colored light trails show this behavior — warm trails spiral in (capture), cool trails deflect away (scatter), and pale trails temporarily orbit.
+        </p>
+      </div>
+    </section>
+
+    <!-- Animation Parameters -->
+    <section>
+      <h2 class="section-title">Animation Pixel Parameters</h2>
+      <div class="card">
+        <p style="color:var(--muted); margin-bottom:1.25rem; font-size:0.95rem;">
+          Key canvas pixel values used by the interactive simulator (approximate, at 1× device pixel ratio).
+        </p>
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+            <thead>
+              <tr style="border-bottom:1px solid rgba(123,92,255,0.3); text-align:left;">
+                <th style="padding:0.65rem 0.75rem; color:var(--accent-glow); font-family:'Orbitron',sans-serif; font-weight:600;">Parameter</th>
+                <th style="padding:0.65rem 0.75rem; color:var(--accent-glow); font-family:'Orbitron',sans-serif; font-weight:600;">White Dwarf</th>
+                <th style="padding:0.65rem 0.75rem; color:var(--accent-glow); font-family:'Orbitron',sans-serif; font-weight:600;">Neutron Star</th>
+                <th style="padding:0.65rem 0.75rem; color:var(--accent-glow); font-family:'Orbitron',sans-serif; font-weight:600;">Black Hole</th>
+              </tr>
+            </thead>
+            <tbody style="color:var(--muted);">
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                <td style="padding:0.6rem 0.75rem; color:var(--text);">Shock Bounce speed</td>
+                <td style="padding:0.6rem 0.75rem;">5.5 px/frame</td>
+                <td style="padding:0.6rem 0.75rem;">7.5 px/frame</td>
+                <td style="padding:0.6rem 0.75rem;">6.5 px/frame</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                <td style="padding:0.6rem 0.75rem; color:var(--text);">Primary shockwave speed</td>
+                <td style="padding:0.6rem 0.75rem;">6.8 px/frame</td>
+                <td style="padding:0.6rem 0.75rem;">9.5 px/frame</td>
+                <td style="padding:0.6rem 0.75rem;">8.2 px/frame</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                <td style="padding:0.6rem 0.75rem; color:var(--text);">Secondary shockwave speed</td>
+                <td style="padding:0.6rem 0.75rem;">≈4.9 px/frame</td>
+                <td style="padding:0.6rem 0.75rem;">≈6.8 px/frame</td>
+                <td style="padding:0.6rem 0.75rem;">≈5.9 px/frame</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                <td style="padding:0.6rem 0.75rem; color:var(--text);">Tertiary shockwave speed</td>
+                <td style="padding:0.6rem 0.75rem;">≈3.4 px/frame</td>
+                <td style="padding:0.6rem 0.75rem;">≈4.8 px/frame</td>
+                <td style="padding:0.6rem 0.75rem;">≈4.1 px/frame</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                <td style="padding:0.6rem 0.75rem; color:var(--text);">Primary max radius</td>
+                <td style="padding:0.6rem 0.75rem;" colspan="3">300 px</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                <td style="padding:0.6rem 0.75rem; color:var(--text);">Secondary max radius</td>
+                <td style="padding:0.6rem 0.75rem;" colspan="3">380 px</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                <td style="padding:0.6rem 0.75rem; color:var(--text);">Tertiary max radius</td>
+                <td style="padding:0.6rem 0.75rem;" colspan="3">450 px</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                <td style="padding:0.6rem 0.75rem; color:var(--text);">Deceleration (accel)</td>
+                <td style="padding:0.6rem 0.75rem;" colspan="3">−0.02 to −0.06 px/frame²</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                <td style="padding:0.6rem 0.75rem; color:var(--text);">Base star radius formula</td>
+                <td style="padding:0.6rem 0.75rem;" colspan="3">38 + mass × 1.7 px</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                <td style="padding:0.6rem 0.75rem; color:var(--text);">Giant expansion factor</td>
+                <td style="padding:0.6rem 0.75rem;" colspan="3">up to ≈3.1×</td>
+              </tr>
+              <tr>
+                <td style="padding:0.6rem 0.75rem; color:var(--text);">Event horizon target radius</td>
+                <td style="padding:0.6rem 0.75rem;">—</td>
+                <td style="padding:0.6rem 0.75rem;">—</td>
+                <td style="padding:0.6rem 0.75rem;">≈26 px</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Notes -->
+    <section>
+      <h2 class="section-title">Important Caveats</h2>
+      <div class="card">
+        <ul style="padding-left:1.25rem; color:var(--muted);">
+          <li style="margin-bottom:0.5rem;">Mass thresholds are approximate and depend on metallicity, rotation, and binary interactions. Real stars lose significant mass through winds.</li>
+          <li style="margin-bottom:0.5rem;">Very massive stars (≳100–150 M☉) can encounter pair-instability, which may completely disrupt the star or leave an intermediate-mass black hole.</li>
+          <li style="margin-bottom:0.5rem;">The simulation uses simplified educational thresholds: &lt;8 M☉ → white dwarf, 8–25 M☉ → neutron star, &gt;25 M☉ → black hole.</li>
+          <li>Modern supernova simulations show a complex “landscape” of successful explosions versus failed supernovae even within the same mass range.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Educational interactive module · Approximate physics for clarity · Not a research-grade simulation</p>
+    <p style="margin-top:0.5rem;">Built with pure HTML, CSS & Canvas · Explore the cosmos</p>
+  </footer>
+
+  <script>
+    // ========== Starfield ==========
+    const starCanvas = document.getElementById('starfield');
+    const starCtx = starCanvas.getContext('2d');
+    let stars = [];
+
+    function resizeStarfield() {
+      starCanvas.width = window.innerWidth;
+      starCanvas.height = window.innerHeight;
+      stars = Array.from({ length: 180 }, () => ({
+        x: Math.random() * starCanvas.width,
+        y: Math.random() * starCanvas.height,
+        r: Math.random() * 1.4 + 0.3,
+        a: Math.random(),
+        s: Math.random() * 0.02 + 0.005
+      }));
+    }
+    window.addEventListener('resize', resizeStarfield);
+    resizeStarfield();
+
+    function drawStars() {
+      starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+      stars.forEach(s => {
+        s.a += s.s;
+        if (s.a > 1 || s.a < 0) s.s *= -1;
+        starCtx.beginPath();
+        starCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        starCtx.fillStyle = `rgba(220, 220, 255, ${0.3 + s.a * 0.7})`;
+        starCtx.fill();
+      });
+      requestAnimationFrame(drawStars);
+    }
+    drawStars();
+
+    // ========== Simulator ==========
+    const massSlider = document.getElementById('massSlider');
+    const massValue = document.getElementById('massValue');
+    const fateText = document.getElementById('fateText');
+    const physicsText = document.getElementById('physicsText');
+    const simBtn = document.getElementById('simBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const stageLabel = document.getElementById('stageLabel');
+    const stageCaption = document.getElementById('stageCaption');
+    const outcomeBadge = document.getElementById('outcomeBadge');
+    const progressBar = document.getElementById('progressBar');
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // --- State ---
+    let animating = false;
+    let idleRemnant = false;
+    let particles = [];
+    let shockwaves = [];
+    let photonPaths = [];
+    let currentStage = 'ready';
+    let remnantType = 'ns';
+    let starRadius = 60;
+    let coreRadius = 18;
+    let giantFactor = 1;
+    let explosionProgress = 0;
+    let bhHorizon = 0;
+    let accretionAngle = 0;
+    let flashIntensity = 0;
+    let shakeX = 0, shakeY = 0;
+    let starPulse = 0;
+    let envelopeAlpha = 1;
+    let coreBrightness = 1;
+    let remnantScale = 0;
+    let remnantAlpha = 0;
+    let collapseShake = 0;
+    let time = 0;
+    let stageStart = 0;
+    let currentStageIdx = -1;
+    let cameraZoom = 1;
+    let targetZoom = 1;
+    let chromatic = 0;
+    let idleRaf = null;
+    let audioCtx = null;
+    let captionFadeTimer = null;
+    let simTimers = []; // tracked timeouts so reset can clear them
+
+    function trackTimeout(fn, ms) {
+      const id = setTimeout(() => {
+        simTimers = simTimers.filter(t => t !== id);
+        fn();
+      }, ms);
+      simTimers.push(id);
+      return id;
+    }
+
+    function clearSimTimers() {
+      simTimers.forEach(clearTimeout);
+      simTimers = [];
+    }
+
+    function showCaption(text, fadeAfterMs = null) {
+      if (!stageCaption) return;
+      if (captionFadeTimer) {
+        clearTimeout(captionFadeTimer);
+        captionFadeTimer = null;
+      }
+      stageCaption.textContent = text;
+      stageCaption.classList.remove('faded');
+      if (fadeAfterMs != null) {
+        captionFadeTimer = setTimeout(() => {
+          stageCaption.classList.add('faded');
+          captionFadeTimer = null;
+        }, fadeAfterMs);
+      }
+    }
+
+    function isSimLocked() {
+      return animating || idleRemnant;
+    }
+
+    // Stage definitions with educational captions
+    const STAGE_DEFS = [
+      { name: 'Main Sequence', duration: 1300, progress: 5, caption: 'Stable fusion balances gravity — the star shines for millions to billions of years.' },
+      { name: 'Expanding to Giant', duration: 2300, progress: 18, caption: 'Core hydrogen is exhausted. The envelope swells into a red giant or supergiant.' },
+      { name: 'Unstable Giant', duration: 1500, progress: 28, caption: 'Advanced burning stages run faster and faster. The core grows denser and hotter.' },
+      { name: 'Core Collapse', duration: 1900, progress: 48, caption: 'Iron core can no longer support itself. Collapse begins in a fraction of a second.' },
+      { name: 'Shock Bounce', duration: 850, progress: 58, caption: 'The core rebounds at nuclear density — a shock wave launches outward.' },
+      { name: 'Supernova Explosion', duration: 2800, progress: 80, caption: 'The outer layers are blasted into space as glowing plasma, dust, and heavy elements.' },
+      { name: 'Remnant Settles', duration: 3200, progress: 100, caption: 'What remains depends on mass: white dwarf, neutron star, or black hole.' }
+    ];
+
+    function setMass(m) {
+      if (isSimLocked()) return;
+      massSlider.value = m;
+      massValue.textContent = m;
+      updateFate(m);
+      starRadius = 38 + m * 1.7;
+      drawFrame();
+    }
+
+    function ensureAudio() {
+      if (!audioCtx) {
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+      }
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playBoom(intensity = 1) {
+      if (!audioCtx) return;
+      const t0 = audioCtx.currentTime;
+      // Low rumble
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(55, t0);
+      osc.frequency.exponentialRampToValueAtTime(28, t0 + 0.8);
+      filter.type = 'lowpass';
+      filter.frequency.value = 180;
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(0.22 * intensity, t0 + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.4);
+      osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(t0); osc.stop(t0 + 1.5);
+      // Noise burst (shock)
+      const bufferSize = audioCtx.sampleRate * 0.35;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 1.5);
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+      const nGain = audioCtx.createGain();
+      const nFilter = audioCtx.createBiquadFilter();
+      nFilter.type = 'bandpass';
+      nFilter.frequency.value = 400;
+      nGain.gain.setValueAtTime(0.18 * intensity, t0);
+      nGain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.4);
+      noise.connect(nFilter); nFilter.connect(nGain); nGain.connect(audioCtx.destination);
+      noise.start(t0);
+    }
+
+    function playCollapseTone() {
+      if (!audioCtx) return;
+      const t0 = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(120, t0);
+      osc.frequency.exponentialRampToValueAtTime(40, t0 + 1.2);
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(0.08, t0 + 0.1);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.3);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(t0); osc.stop(t0 + 1.4);
+    }
+
+    // Keyboard: Space to run / reset
+    document.addEventListener('keydown', (e) => {
+      if (e.code !== 'Space') return;
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+      e.preventDefault();
+      if (isSimLocked()) resetSim();
+      else runSimulation();
+    });
+
+    function resizeCanvas() {
+      if (!canvas || !canvas.parentElement) return;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      if (rect.width < 1 || rect.height < 1) return;
+      canvas.width = rect.width * devicePixelRatio;
+      canvas.height = rect.height * devicePixelRatio;
+      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+      canvas.style.width = rect.width + 'px';
+      canvas.style.height = rect.height + 'px';
+    }
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      if (!animating) drawFrame();
+    });
+    resizeCanvas();
+
+    function getOutcome(mass) {
+      if (mass < 8) return 'wd';
+      if (mass <= 25) return 'ns';
+      return 'bh';
+    }
+
+    function updateFate(mass, lockRemnantType = false) {
+      const outcome = getOutcome(mass);
+      // Never change the running simulation's remnant mid-flight
+      if (!lockRemnantType) remnantType = outcome;
+      if (outcome === 'wd') {
+        fateText.textContent = 'White dwarf + planetary nebula';
+        physicsText.textContent = 'Core mass stays below the Chandrasekhar limit (~1.4 M☉). Electron degeneracy pressure stabilizes the remnant. Outer layers drift away as a planetary nebula.';
+      } else if (outcome === 'ns') {
+        fateText.textContent = 'Neutron star after core-collapse supernova';
+        physicsText.textContent = 'Iron core exceeds Chandrasekhar mass and collapses. Neutron degeneracy + nuclear forces halt the collapse at ~10–15 km radius. Shock wave drives a supernova.';
+      } else {
+        fateText.textContent = 'Black hole (possible failed or weak supernova)';
+        physicsText.textContent = 'Even neutron degeneracy fails. The core collapses inside its Schwarzschild radius, forming an event horizon. Significant fallback or direct collapse is common for the highest masses.';
+      }
+    }
+
+    massSlider.addEventListener('input', () => {
+      const m = parseFloat(massSlider.value);
+      massValue.textContent = m;
+      // Preview fate text always; only commit remnantType when idle
+      updateFate(m, isSimLocked());
+      if (!isSimLocked()) {
+        starRadius = 38 + m * 1.7;
+        drawFrame();
+      }
+    });
+    updateFate(12);
+
+    function resetSim() {
+      animating = false;
+      idleRemnant = false;
+      if (idleRaf) { cancelAnimationFrame(idleRaf); idleRaf = null; }
+      clearSimTimers();
+      massSlider.disabled = false;
+      simBtn.disabled = false;
+      resetBtn.disabled = true;
+      currentStage = 'ready';
+      currentStageIdx = -1;
+      stageLabel.textContent = 'Ready';
+      if (captionFadeTimer) { clearTimeout(captionFadeTimer); captionFadeTimer = null; }
+      if (stageCaption) {
+        stageCaption.textContent = 'Choose a mass and press Simulate';
+        stageCaption.classList.remove('faded');
+      }
+      outcomeBadge.className = 'outcome-badge';
+      progressBar.style.width = '0%';
+      particles = [];
+      shockwaves = [];
+      photonPaths = [];
+      giantFactor = 1;
+      explosionProgress = 0;
+      bhHorizon = 0;
+      flashIntensity = 0;
+      shakeX = shakeY = 0;
+      starPulse = 0;
+      envelopeAlpha = 1;
+      coreBrightness = 1;
+      remnantScale = 0;
+      remnantAlpha = 0;
+      collapseShake = 0;
+      cameraZoom = 1;
+      targetZoom = 1;
+      chromatic = 0;
+      const m = parseFloat(massSlider.value);
+      starRadius = 38 + m * 1.7;
+      coreRadius = 18;
+      updateFate(m); // re-sync remnantType with slider after unlock
+      drawFrame();
+    }
+
+    // Easing helpers
+    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+    function easeInCubic(t) { return t * t * t; }
+    function easeInOutQuad(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+    function easeOutElastic(t) {
+      if (t === 0 || t === 1) return t;
+      return Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * (2 * Math.PI) / 3) + 1;
+    }
+    function easeOutBack(t) {
+      const c1 = 1.70158, c3 = c1 + 1;
+      return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+    }
+
+    function spawnExplosion(count, speedMul = 1, sizeMul = 1, colorMode = 'sn') {
+      const w = canvas.width / devicePixelRatio;
+      const h = canvas.height / devicePixelRatio;
+      const cx = w / 2, cy = h / 2;
+
+      // Spawn in filamentary streams for fluid plasma look (not pure isotropic burst)
+      const numFilaments = Math.max(6, Math.floor(count / 12));
+      const perFilament = Math.ceil(count / numFilaments);
+
+      for (let f = 0; f < numFilaments; f++) {
+        const baseAngle = (f / numFilaments) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
+        const filamentSpread = 0.15 + Math.random() * 0.25;
+
+        for (let i = 0; i < perFilament; i++) {
+          const angle = baseAngle + (Math.random() - 0.5) * filamentSpread;
+          const speed = (0.8 + Math.random() * 4.8) * speedMul * (0.7 + Math.random() * 0.6);
+          const isSpark = Math.random() > 0.62;
+          const isGas = !isSpark && Math.random() > 0.35; // soft volumetric gas
+          const isClump = !isSpark && !isGas && Math.random() > 0.7;
+
+          let color;
+          if (colorMode === 'wd') {
+            color = Math.random() > 0.28
+              ? `hsl(${175 + Math.random() * 45}, ${55 + Math.random() * 30}%, ${55 + Math.random() * 30}%)`
+              : `hsl(${350 + Math.random() * 15}, ${60 + Math.random() * 25}%, ${50 + Math.random() * 25}%)`;
+          } else if (colorMode === 'bh') {
+            color = Math.random() > 0.4
+              ? `hsl(${195 + Math.random() * 40}, ${40 + Math.random() * 30}%, ${70 + Math.random() * 25}%)`
+              : `hsl(${15 + Math.random() * 30}, ${70 + Math.random() * 25}%, ${45 + Math.random() * 25}%)`;
+          } else {
+            // Cinematic SN plasma: hot blue-white core filaments + cooling orange-red outer gas
+            if (isSpark) {
+              color = `hsl(${195 + Math.random() * 45}, ${25 + Math.random() * 35}%, ${78 + Math.random() * 18}%)`;
+            } else if (isGas) {
+              const t = Math.random();
+              if (t < 0.4) color = `hsl(${12 + Math.random() * 22}, ${75 + Math.random() * 20}%, ${48 + Math.random() * 18}%)`; // orange-red dust
+              else if (t < 0.7) color = `hsl(${25 + Math.random() * 20}, ${70 + Math.random() * 20}%, ${55 + Math.random() * 15}%)`; // amber
+              else color = `hsl(${200 + Math.random() * 35}, ${35 + Math.random() * 30}%, ${60 + Math.random() * 25}%)`; // residual hot plasma
+            } else {
+              color = `hsl(${30 + Math.random() * 25}, ${80 + Math.random() * 15}%, ${55 + Math.random() * 20}%)`;
+            }
+          }
+
+          // Slight tangential velocity for swirling fluid motion
+          const tangential = (Math.random() - 0.5) * 0.9 * speedMul;
+          particles.push({
+            x: cx + Math.cos(angle) * (4 + Math.random() * 18),
+            y: cy + Math.sin(angle) * (4 + Math.random() * 18),
+            vx: Math.cos(angle) * speed + Math.cos(angle + Math.PI / 2) * tangential,
+            vy: Math.sin(angle) * speed + Math.sin(angle + Math.PI / 2) * tangential,
+            life: 1,
+            decay: isSpark ? 0.011 + Math.random() * 0.016
+              : isGas ? 0.0035 + Math.random() * 0.005
+              : isClump ? 0.003 + Math.random() * 0.005
+              : 0.005 + Math.random() * 0.009,
+            size: (isSpark ? 1.0 + Math.random() * 2.0
+              : isGas ? 3.5 + Math.random() * 7
+              : isClump ? 4 + Math.random() * 6
+              : 2.0 + Math.random() * 3.5) * sizeMul,
+            color,
+            drag: isGas ? 0.992 + Math.random() * 0.006 : 0.984 + Math.random() * 0.01,
+            rot: Math.random() * Math.PI * 2,
+            rotV: (Math.random() - 0.5) * 0.12,
+            trail: isSpark || (isGas && Math.random() > 0.5),
+            isClump,
+            isGas,
+            glow: isGas || isSpark,
+            turbPhase: Math.random() * Math.PI * 2,
+            turbAmp: isGas ? 0.08 + Math.random() * 0.15 : 0.03 + Math.random() * 0.08
+          });
+        }
+      }
+    }
+
+    function spawnShockwave(maxR, speed, life, color, options = {}) {
+      shockwaves.push({
+        r: options.startR || 5,
+        maxR,
+        speed,
+        accel: options.accel !== undefined ? options.accel : -0.04,
+        life: 1,
+        decay: 1 / life,
+        color,
+        width: options.width || (4.5 + Math.random() * 4),
+        minWidth: options.minWidth || 1.1,
+        glow: options.glow !== false
+      });
+    }
+
+    function showOutcome() {
+      outcomeBadge.className = 'outcome-badge visible ' + remnantType;
+      if (remnantType === 'wd') outcomeBadge.textContent = 'WHITE DWARF';
+      else if (remnantType === 'ns') outcomeBadge.textContent = 'NEUTRON STAR';
+      else outcomeBadge.textContent = 'BLACK HOLE';
+    }
+
+    function spawnPhotonPath(cx, cy, rs) {
+      // Photon launched near the photon sphere (r ≈ 1.5 Rs)
+      // Some will orbit a few times then escape or fall in (unstable orbit)
+      const photonSphere = rs * 1.5;
+      const impact = photonSphere * (0.92 + Math.random() * 0.25); // near critical
+      const angle = Math.random() * Math.PI * 2;
+      const direction = Math.random() > 0.5 ? 1 : -1;
+      // Fate: based on how close to critical impact parameter
+      const critical = photonSphere;
+      const delta = impact - critical;
+      let fate = 'orbit'; // temporary
+      if (delta < -0.8) fate = 'capture';
+      else if (delta > 1.2) fate = 'scatter';
+      else fate = Math.random() > 0.45 ? 'orbit' : (Math.random() > 0.5 ? 'capture' : 'scatter');
+
+      photonPaths.push({
+        angle,
+        r: impact,
+        direction,
+        fate,
+        life: 1,
+        maxLife: 1,
+        trail: [],
+        speed: 0.045 + Math.random() * 0.025,
+        orbitCount: 0,
+        decay: fate === 'orbit' ? 0.0035 : 0.006,
+        brightness: 0.7 + Math.random() * 0.3
+      });
+    }
+
+    function updatePhotonPaths(cx, cy, rs) {
+      const photonSphere = rs * 1.5;
+      for (let i = photonPaths.length - 1; i >= 0; i--) {
+        const p = photonPaths[i];
+        // Record trail
+        const px = cx + Math.cos(p.angle) * p.r;
+        const py = cy + Math.sin(p.angle) * p.r * 0.92;
+        p.trail.push({ x: px, y: py, a: p.life });
+        if (p.trail.length > 28) p.trail.shift();
+
+        // Angular motion (faster closer in — rough Keplerian visual)
+        const omega = p.speed * (photonSphere / Math.max(p.r, rs * 1.05));
+        p.angle += omega * p.direction;
+
+        // Radial evolution depends on fate (unstable photon sphere dynamics)
+        if (p.fate === 'capture') {
+          // Spirals inward
+          p.r -= 0.12 + (photonSphere - p.r) * 0.01;
+          if (p.r < rs * 1.02) p.life = 0; // crossed horizon
+        } else if (p.fate === 'scatter') {
+          // Deflected outward after partial orbit
+          p.r += 0.15 + Math.max(0, p.r - photonSphere) * 0.02;
+          if (p.r > rs * 5.5) p.life = 0;
+        } else {
+          // Temporary near-circular orbit, then randomly decide
+          p.orbitCount += omega;
+          p.r += Math.sin(p.orbitCount * 3) * 0.08; // small radial wobble
+          if (p.orbitCount > 4 + Math.random() * 6) {
+            p.fate = Math.random() > 0.4 ? 'scatter' : 'capture';
+          }
+        }
+
+        p.life -= p.decay;
+        if (p.life <= 0) photonPaths.splice(i, 1);
+      }
+    }
+
+    function spawnExpandingDebris(cx, cy, mode) {
+      // Continuous post-explosion cosmic dust, plasma & debris drifting outward
+      const n = 2 + Math.floor(Math.random() * 4);
+      for (let i = 0; i < n; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        // Start at moderate radius so expansion continues into deep space
+        const startR = 30 + Math.random() * 90;
+        const speed = 0.25 + Math.random() * 1.1;
+        const isGas = Math.random() > 0.35;
+        let color;
+        if (mode === 'wd') {
+          color = Math.random() > 0.3
+            ? `hsl(${170 + Math.random() * 50}, ${50 + Math.random() * 30}%, ${55 + Math.random() * 30}%)`
+            : `hsl(${345 + Math.random() * 20}, ${55 + Math.random() * 25}%, ${50 + Math.random() * 25}%)`;
+        } else if (mode === 'bh') {
+          color = Math.random() > 0.45
+            ? `hsl(${195 + Math.random() * 40}, ${35 + Math.random() * 30}%, ${65 + Math.random() * 25}%)`
+            : `hsl(${15 + Math.random() * 30}, ${65 + Math.random() * 25}%, ${45 + Math.random() * 25}%)`;
+        } else {
+          // SN remnant: colorful plasma + cooling dust
+          const t = Math.random();
+          if (t < 0.3) color = `hsl(${195 + Math.random() * 40}, ${30 + Math.random() * 30}%, ${70 + Math.random() * 20}%)`; // hot plasma
+          else if (t < 0.6) color = `hsl(${15 + Math.random() * 25}, ${70 + Math.random() * 25}%, ${50 + Math.random() * 20}%)`; // orange dust
+          else if (t < 0.8) color = `hsl(${30 + Math.random() * 20}, ${65 + Math.random() * 20}%, ${55 + Math.random() * 15}%)`; // amber
+          else color = `hsl(${200 + Math.random() * 30}, ${40 + Math.random() * 25}%, ${55 + Math.random() * 20}%)`; // cool blue gas
+        }
+        const tangential = (Math.random() - 0.5) * 0.35;
+        particles.push({
+          x: cx + Math.cos(angle) * startR,
+          y: cy + Math.sin(angle) * startR,
+          vx: Math.cos(angle) * speed + Math.cos(angle + Math.PI / 2) * tangential,
+          vy: Math.sin(angle) * speed + Math.sin(angle + Math.PI / 2) * tangential,
+          life: 1,
+          decay: isGas ? 0.0025 + Math.random() * 0.0035 : 0.0035 + Math.random() * 0.004,
+          size: isGas ? 3 + Math.random() * 6.5 : 1.5 + Math.random() * 3.5,
+          color,
+          drag: 0.994 + Math.random() * 0.004,
+          rot: Math.random() * Math.PI * 2,
+          rotV: (Math.random() - 0.5) * 0.08,
+          trail: Math.random() > 0.4,
+          isGas,
+          glow: true,
+          turbPhase: Math.random() * Math.PI * 2,
+          turbAmp: 0.06 + Math.random() * 0.12
+        });
+      }
+    }
+
+    function startIdleLoop() {
+      if (idleRaf) cancelAnimationFrame(idleRaf);
+      function idleTick(now) {
+        if (!idleRemnant) return;
+        time = now;
+        accretionAngle += 0.038;
+        starPulse = Math.sin(now * 0.003) * 0.04;
+
+        const w = canvas.width / devicePixelRatio;
+        const h = canvas.height / devicePixelRatio;
+        const cx = w / 2, cy = h / 2;
+        const mode = remnantType === 'wd' ? 'wd' : (remnantType === 'bh' ? 'bh' : 'sn');
+
+        if (remnantType === 'bh') {
+          bhHorizon = 28 + Math.sin(now * 0.0022) * 1.6;
+          const rs = Math.max(bhHorizon, 6.5);
+          if (photonPaths.length < 12 && Math.random() < 0.08) {
+            spawnPhotonPath(cx, cy, rs);
+          }
+          updatePhotonPaths(cx, cy, rs);
+        } else {
+          photonPaths = [];
+        }
+
+        // Continuous expanding cosmic dust, plasma & debris
+        if (particles.length < 90 && Math.random() < 0.22) {
+          spawnExpandingDebris(cx, cy, mode);
+        }
+        // Occasional denser filament burst
+        if (particles.length < 70 && Math.random() < 0.04) {
+          spawnExplosion(6 + Math.floor(Math.random() * 8), 0.35, 0.7, mode);
+        }
+
+        // Update particles — smooth outward flow
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          if (p.turbAmp) {
+            p.turbPhase = (p.turbPhase || 0) + 0.03;
+            p.vx += Math.sin(p.turbPhase * 1.2) * p.turbAmp * 0.28;
+            p.vy += Math.cos(p.turbPhase) * p.turbAmp * 0.28;
+          }
+          p.vx *= p.drag || 0.995;
+          p.vy *= p.drag || 0.995;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rot += p.rotV || 0;
+          p.life -= p.decay * 0.85; // linger longer while expanding
+          // Remove if far off-screen or dead
+          if (p.life <= 0 || p.x < -40 || p.x > w + 40 || p.y < -40 || p.y > h + 40) {
+            particles.splice(i, 1);
+          }
+        }
+        if (particles.length > 110) particles.splice(0, particles.length - 110);
+
+        drawFrame();
+        idleRaf = requestAnimationFrame(idleTick);
+      }
+      idleRaf = requestAnimationFrame(idleTick);
+    }
+
+    function runSimulation() {
+      if (animating) return;
+      ensureAudio();
+      // Stop any previous idle loop / pending stage timers
+      idleRemnant = false;
+      if (idleRaf) { cancelAnimationFrame(idleRaf); idleRaf = null; }
+      clearSimTimers();
+
+      animating = true;
+      massSlider.disabled = true;
+      simBtn.disabled = true;
+      resetBtn.disabled = false;
+      particles = [];
+      shockwaves = [];
+      photonPaths = [];
+      giantFactor = 1;
+      explosionProgress = 0;
+      bhHorizon = 0;
+      flashIntensity = 0;
+      shakeX = shakeY = 0;
+      starPulse = 0;
+      envelopeAlpha = 1;
+      coreBrightness = 1;
+      remnantScale = 0;
+      remnantAlpha = 0;
+      collapseShake = 0;
+      cameraZoom = 1;
+      targetZoom = 1;
+      chromatic = 0;
+      currentStageIdx = 0;
+      stageStart = performance.now();
+
+      const mass = parseFloat(massSlider.value);
+      const simMass = mass; // freeze mass for this run
+      remnantType = getOutcome(simMass);
+      starRadius = 38 + simMass * 1.7;
+      coreRadius = 15 + Math.min(simMass * 0.35, 14);
+
+      const isWD = remnantType === 'wd';
+      const isBH = remnantType === 'bh';
+
+      function advanceStage() {
+        if (currentStageIdx >= STAGE_DEFS.length) {
+          // Transition to continuous remnant + expanding debris animation
+          animating = false;
+          idleRemnant = true;
+          remnantAlpha = 1;
+          remnantScale = 1;
+          explosionProgress = 1;
+          cameraZoom = 1;
+          targetZoom = 1;
+          flashIntensity = 0;
+          chromatic = 0;
+          shakeX = shakeY = 0;
+          if (remnantType === 'bh') bhHorizon = 28;
+          showOutcome();
+          stageLabel.textContent = remnantType === 'wd'
+            ? 'White Dwarf · Expanding Nebula'
+            : (remnantType === 'ns' ? 'Neutron Star · Expanding Remnant' : 'Black Hole · Accreting Debris');
+          // Final explanation only: show, then fade out after 3 seconds
+          showCaption(
+            remnantType === 'wd'
+              ? 'Electron degeneracy holds the remnant. Outer layers expand as a planetary nebula.'
+              : remnantType === 'ns'
+                ? 'Neutron degeneracy supports the remnant. Ejecta enrich the interstellar medium.'
+                : 'Even neutron pressure fails. Light orbits the photon sphere; debris continues outward.',
+            3000
+          );
+          // Seed a wave of expanding debris so motion continues seamlessly
+          const w = canvas.width / devicePixelRatio;
+          const h = canvas.height / devicePixelRatio;
+          const mode = remnantType === 'wd' ? 'wd' : (remnantType === 'bh' ? 'bh' : 'sn');
+          for (let i = 0; i < 5; i++) spawnExpandingDebris(w / 2, h / 2, mode);
+          startIdleLoop();
+          return;
+        }
+        const s = STAGE_DEFS[currentStageIdx];
+        currentStage = s.name;
+        stageLabel.textContent = s.name;
+        // Intermediate stage descriptions stay visible (no auto-fade)
+        if (stageCaption && s.caption) {
+          if (captionFadeTimer) { clearTimeout(captionFadeTimer); captionFadeTimer = null; }
+          stageCaption.textContent = s.caption;
+          stageCaption.classList.remove('faded');
+        }
+        progressBar.style.width = s.progress + '%';
+        stageStart = performance.now();
+
+        if (s.name === 'Core Collapse') {
+          collapseShake = 1;
+          targetZoom = 1.55;
+          playCollapseTone();
+        }
+        if (s.name === 'Shock Bounce') {
+          flashIntensity = 0.95;
+          chromatic = 0.7;
+          targetZoom = 1.15;
+          playBoom(remnantType === 'wd' ? 0.55 : 1);
+          const bounceSpeed = isWD ? 5.8 : (isBH ? 6.8 : 8.0);
+          spawnShockwave(230, bounceSpeed, 38, isWD ? 'rgba(180, 220, 255, 0.9)' : 'rgba(220, 240, 255, 0.9)', { width: 7, accel: -0.07 });
+          spawnExplosion(isWD ? 55 : (isBH ? 80 : 120), 0.75, 0.9, isWD ? 'wd' : (isBH ? 'bh' : 'sn'));
+        }
+        if (s.name === 'Supernova Explosion') {
+          flashIntensity = 1.0;
+          chromatic = 1.0;
+          targetZoom = 0.78;
+          const count = isWD ? 110 : (isBH ? 140 : 240);
+          spawnExplosion(count, isWD ? 0.95 : 1.35, isWD ? 1.0 : 1.3, isWD ? 'wd' : (isBH ? 'bh' : 'sn'));
+
+          const mainSpeed = isWD ? 7.0 : (isBH ? 8.5 : 10.0);
+          // Primary shock: hot blue-white (early SN) or teal (PN)
+          spawnShockwave(310, mainSpeed, 48, isWD ? 'rgba(140, 210, 200, 0.8)' : 'rgba(200, 230, 255, 0.9)', { width: 8, accel: -0.05 });
+
+          trackTimeout(() => {
+            if (!animating) return;
+            // Secondary: cooling toward yellow-orange for SN
+            spawnShockwave(400, mainSpeed * 0.7, 62, isWD ? 'rgba(120, 190, 220, 0.5)' : 'rgba(255, 200, 120, 0.55)', { width: 5.5, accel: -0.028 });
+          }, 150);
+
+          trackTimeout(() => {
+            if (!animating) return;
+            // Outer wave: cooler
+            spawnShockwave(480, mainSpeed * 0.48, 78, isWD ? 'rgba(100, 170, 200, 0.28)' : 'rgba(255, 140, 70, 0.3)', { width: 3.5, accel: -0.018 });
+          }, 320);
+
+          trackTimeout(() => {
+            if (!animating) return;
+            spawnExplosion(Math.floor(count * 0.55), 0.9, 0.85, isWD ? 'wd' : (isBH ? 'bh' : 'sn'));
+          }, 300);
+        }
+        if (s.name === 'Remnant Settles') {
+          targetZoom = 1.0;
+          remnantScale = 0.05;
+          remnantAlpha = 0;
+        }
+      }
+
+      advanceStage();
+
+      function loop(now) {
+        if (!animating) return;
+        time = now;
+        const stage = STAGE_DEFS[currentStageIdx];
+        if (!stage) {
+          // Safety fallback → idle remnant (same cleanup as normal end)
+          animating = false;
+          idleRemnant = true;
+          remnantAlpha = 1;
+          remnantScale = 1;
+          explosionProgress = 1;
+          cameraZoom = 1;
+          targetZoom = 1;
+          flashIntensity = 0;
+          chromatic = 0;
+          shakeX = shakeY = 0;
+          if (remnantType === 'bh') bhHorizon = 28;
+          showOutcome();
+          stageLabel.textContent = remnantType === 'wd'
+            ? 'White Dwarf · Expanding Nebula'
+            : (remnantType === 'ns' ? 'Neutron Star · Expanding Remnant' : 'Black Hole · Accreting Debris');
+          startIdleLoop();
+          return;
+        }
+
+        const elapsed = now - stageStart;
+        const frac = Math.min(elapsed / stage.duration, 1);
+
+        // Smooth camera zoom
+        cameraZoom += (targetZoom - cameraZoom) * 0.06;
+
+        // ---- Stage logic ----
+        if (stage.name === 'Main Sequence') {
+          giantFactor = 1;
+          starPulse = Math.sin(now * 0.004) * 0.025;
+        }
+        else if (stage.name === 'Expanding to Giant') {
+          giantFactor = 1 + easeOutCubic(frac) * 2.15;
+          starPulse = Math.sin(now * 0.006) * 0.07 * frac;
+          if (Math.random() < 0.18) {
+            const ang = Math.random() * Math.PI * 2;
+            const r = starRadius * giantFactor * 0.48;
+            const cx = (canvas.width / devicePixelRatio) / 2;
+            const cy = (canvas.height / devicePixelRatio) / 2;
+            particles.push({
+              x: cx + Math.cos(ang) * r * 0.75,
+              y: cy + Math.sin(ang) * r * 0.75,
+              vx: Math.cos(ang) * (0.25 + Math.random() * 0.55),
+              vy: Math.sin(ang) * (0.25 + Math.random() * 0.55),
+              life: 1, decay: 0.009 + Math.random() * 0.01,
+              size: 1.4 + Math.random() * 2.4,
+              color: `hsl(${12 + Math.random() * 28}, 75%, 55%)`, // cool giant wind — orange-red
+              drag: 0.988, rot: 0, rotV: 0, trail: false
+            });
+          }
+        }
+        else if (stage.name === 'Unstable Giant') {
+          giantFactor = 3.15 + Math.sin(now * 0.009) * 0.28;
+          starPulse = Math.sin(now * 0.014) * 0.14;
+          coreBrightness = 1 + Math.sin(now * 0.011) * 0.35;
+        }
+        else if (stage.name === 'Core Collapse') {
+          const collapseE = easeInCubic(frac);
+          giantFactor = 3.15 - collapseE * 2.75;
+          coreRadius = (15 + Math.min(simMass * 0.35, 14)) * (1 - collapseE * 0.84);
+          coreBrightness = 1 + collapseE * 4.0;
+          envelopeAlpha = 1 - collapseE * 0.88;
+          collapseShake = Math.sin(now * 0.09) * (1 - frac) * 9 + (Math.random() - 0.5) * 5 * (1 - frac);
+          shakeX = collapseShake * 0.75;
+          shakeY = collapseShake * 0.55;
+          if (frac > 0.35 && Math.random() < 0.3) {
+            spawnExplosion(4, 0.45, 0.55, remnantType === 'wd' ? 'wd' : 'sn');
+          }
+        }
+        else if (stage.name === 'Shock Bounce') {
+          flashIntensity = Math.max(0, 0.95 - frac * 1.5);
+          chromatic = Math.max(0, 0.7 - frac * 1.2);
+          shakeX = (Math.random() - 0.5) * 12 * (1 - frac);
+          shakeY = (Math.random() - 0.5) * 10 * (1 - frac);
+          coreBrightness = 4.2 - frac * 2.2;
+          giantFactor = 0.32 + frac * 0.18;
+        }
+        else if (stage.name === 'Supernova Explosion') {
+          explosionProgress = easeOutCubic(frac);
+          flashIntensity = Math.max(0, 1.0 - frac * 1.55);
+          chromatic = Math.max(0, 1.0 - frac * 1.4);
+          shakeX = (Math.random() - 0.5) * 16 * Math.max(0, 1 - frac * 1.6);
+          shakeY = (Math.random() - 0.5) * 14 * Math.max(0, 1 - frac * 1.6);
+          envelopeAlpha = Math.max(0, 0.25 - frac * 0.35);
+
+          if (remnantType === 'bh' && frac > 0.4) {
+            bhHorizon = easeOutCubic((frac - 0.4) / 0.6) * 28;
+          }
+          // Delayed remnant reveal for drama
+          if (frac > 0.6) {
+            const rFrac = (frac - 0.6) / 0.4;
+            remnantAlpha = easeOutCubic(rFrac);
+            remnantScale = 0.15 + easeOutBack(Math.min(1, rFrac * 1.15)) * 0.85;
+          }
+        }
+        else if (stage.name === 'Remnant Settles') {
+          explosionProgress = 1;
+          remnantAlpha = Math.min(1, remnantAlpha + 0.035);
+          // Smoothly settle elastic overshoot toward scale 1
+          remnantScale += (1 - remnantScale) * 0.1;
+          flashIntensity *= 0.9;
+          chromatic *= 0.88;
+          shakeX *= 0.82;
+          shakeY *= 0.82;
+          if (remnantType === 'bh') {
+            bhHorizon = 28 + Math.sin(now * 0.0025) * 1.8;
+          }
+          accretionAngle += 0.04;
+          // Smooth continuation of expanding dust & plasma
+          const mode = remnantType === 'wd' ? 'wd' : (remnantType === 'bh' ? 'bh' : 'sn');
+          const w = canvas.width / devicePixelRatio;
+          const h = canvas.height / devicePixelRatio;
+          if (particles.length < 100 && Math.random() < 0.35) {
+            spawnExpandingDebris(w / 2, h / 2, mode);
+          }
+          if (Math.random() < 0.1) {
+            spawnExplosion(3 + Math.floor(Math.random() * 5), 0.3, 0.65, mode);
+          }
+        }
+
+        // Update particles — smooth fluid plasma motion
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          // Soft turbulence for flowing gas
+          if (p.turbAmp) {
+            p.turbPhase = (p.turbPhase || 0) + 0.04;
+            p.vx += Math.sin(p.turbPhase * 1.3) * p.turbAmp * 0.35;
+            p.vy += Math.cos(p.turbPhase * 1.1) * p.turbAmp * 0.35;
+          }
+          p.vx *= p.drag || 0.99;
+          p.vy *= p.drag || 0.99;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rot += p.rotV || 0;
+          p.life -= p.decay;
+          // Clumps fragment into gas
+          if (p.isClump && p.life < 0.5 && Math.random() < 0.1) {
+            p.isClump = false;
+            for (let k = 0; k < 4; k++) {
+              const a = Math.random() * Math.PI * 2;
+              particles.push({
+                x: p.x, y: p.y,
+                vx: p.vx * 0.5 + Math.cos(a) * 1.2,
+                vy: p.vy * 0.5 + Math.sin(a) * 1.2,
+                life: p.life * 0.95, decay: 0.004 + Math.random() * 0.006,
+                size: p.size * (0.4 + Math.random() * 0.4), color: p.color,
+                drag: 0.99, rot: 0, rotV: (Math.random() - 0.5) * 0.2,
+                trail: true, isGas: true, glow: true,
+                turbPhase: Math.random() * 6, turbAmp: 0.1 + Math.random() * 0.12
+              });
+            }
+            p.life = 0;
+          }
+          if (p.life <= 0) particles.splice(i, 1);
+        }
+
+        // Update shockwaves
+        for (let i = shockwaves.length - 1; i >= 0; i--) {
+          const sw = shockwaves[i];
+          sw.speed = Math.max(0.35, sw.speed + (sw.accel || 0));
+          sw.r += sw.speed;
+          sw.life -= sw.decay;
+          if (sw.life <= 0 || sw.r > sw.maxR) shockwaves.splice(i, 1);
+        }
+
+        drawFrame();
+
+        if (frac >= 1) {
+          currentStageIdx++;
+          advanceStage();
+        }
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+    }
+
+    function drawFrame() {
+      const w = canvas.width / devicePixelRatio;
+      const h = canvas.height / devicePixelRatio;
+      const cx0 = w / 2;
+      const cy0 = h / 2;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Apply camera zoom + shake
+      ctx.save();
+      ctx.translate(cx0 + shakeX, cy0 + shakeY);
+      ctx.scale(cameraZoom, cameraZoom);
+      ctx.translate(-cx0, -cy0);
+
+      const cx = cx0;
+      const cy = cy0;
+
+      // Background glow
+      const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(w, h) * 0.5);
+      bg.addColorStop(0, 'rgba(28, 16, 58, 0.4)');
+      bg.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, w, h);
+
+      // Flash + volumetric bloom
+      if (flashIntensity > 0.015) {
+        ctx.fillStyle = `rgba(255, 248, 230, ${flashIntensity * 0.45})`;
+        ctx.fillRect(0, 0, w, h);
+        const flashGrd = ctx.createRadialGradient(cx, cy, 0, cx, cy, 280);
+        flashGrd.addColorStop(0, `rgba(255, 255, 250, ${flashIntensity * 0.85})`);
+        flashGrd.addColorStop(0.25, `rgba(200, 230, 255, ${flashIntensity * 0.35})`);
+        flashGrd.addColorStop(0.5, `rgba(255, 200, 130, ${flashIntensity * 0.2})`);
+        flashGrd.addColorStop(1, 'transparent');
+        ctx.fillStyle = flashGrd;
+        ctx.fillRect(0, 0, w, h);
+
+        // God rays from center during peak flash
+        if (flashIntensity > 0.25) {
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.globalCompositeOperation = 'screen';
+          const rayCount = 14;
+          for (let i = 0; i < rayCount; i++) {
+            const ang = (i / rayCount) * Math.PI * 2 + time * 0.00015 + i * 0.05;
+            const len = 120 + (i % 3) * 50 + flashIntensity * 80;
+            const width = 0.04 + (i % 2) * 0.03;
+            ctx.rotate(ang);
+            const ray = ctx.createLinearGradient(0, 0, len, 0);
+            ray.addColorStop(0, `rgba(255, 245, 220, ${flashIntensity * 0.22})`);
+            ray.addColorStop(0.4, `rgba(200, 220, 255, ${flashIntensity * 0.08})`);
+            ray.addColorStop(1, 'transparent');
+            ctx.fillStyle = ray;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(len, -len * width);
+            ctx.lineTo(len, len * width);
+            ctx.closePath();
+            ctx.fill();
+            ctx.rotate(-ang);
+          }
+          ctx.restore();
+        }
+
+        // Lens sparkles near bright core
+        if (flashIntensity > 0.4) {
+          for (let i = 0; i < 8; i++) {
+            const a = time * 0.002 + i * 0.9;
+            const d = 25 + (i % 4) * 18;
+            const sx = cx + Math.cos(a) * d;
+            const sy = cy + Math.sin(a * 1.3) * d * 0.7;
+            const sp = 1.5 + (i % 3);
+            ctx.fillStyle = `rgba(255, 255, 255, ${flashIntensity * 0.5})`;
+            ctx.beginPath();
+            ctx.arc(sx, sy, sp, 0, Math.PI * 2);
+            ctx.fill();
+            // cross flare
+            ctx.strokeStyle = `rgba(255, 255, 255, ${flashIntensity * 0.25})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(sx - sp * 4, sy); ctx.lineTo(sx + sp * 4, sy);
+            ctx.moveTo(sx, sy - sp * 4); ctx.lineTo(sx, sy + sp * 4);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Shockwave rings + soft shells
+      shockwaves.forEach(sw => {
+        const alpha = Math.max(0, sw.life);
+        const lineW = Math.max(sw.minWidth || 1.1, sw.width * alpha);
+
+        // Soft glowing shell
+        if (sw.glow) {
+          const shell = ctx.createRadialGradient(cx, cy, Math.max(0, sw.r - 18), cx, cy, sw.r + 12);
+          let shellCol = sw.color;
+          if (shellCol.startsWith('rgba')) {
+            shellCol = shellCol.replace(/[\d.]+\)$/, `${(alpha * 0.18).toFixed(3)})`);
+          }
+          shell.addColorStop(0, 'transparent');
+          shell.addColorStop(0.7, shellCol);
+          shell.addColorStop(1, 'transparent');
+          ctx.fillStyle = shell;
+          ctx.beginPath();
+          ctx.arc(cx, cy, sw.r + 12, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Main ring
+        ctx.beginPath();
+        ctx.arc(cx, cy, sw.r, 0, Math.PI * 2);
+        let col = sw.color;
+        if (col.startsWith('rgba')) {
+          col = col.replace(/[\d.]+\)$/, `${(alpha * 0.92).toFixed(3)})`);
+        }
+        ctx.strokeStyle = col;
+        ctx.lineWidth = lineW;
+        ctx.stroke();
+
+        // Inner companion
+        ctx.beginPath();
+        ctx.arc(cx, cy, sw.r * 0.935, 0, Math.PI * 2);
+        if (sw.color.startsWith('rgba')) {
+          col = sw.color.replace(/[\d.]+\)$/, `${(alpha * 0.32).toFixed(3)})`);
+        }
+        ctx.strokeStyle = col;
+        ctx.lineWidth = Math.max(1, lineW * 0.4);
+        ctx.stroke();
+      });
+
+      // Particles — soft volumetric plasma & dust
+      particles.forEach(p => {
+        const life = Math.max(0, p.life);
+        if (life < 0.02) return;
+        ctx.save();
+        ctx.translate(p.x + shakeX * 0.2, p.y + shakeY * 0.2);
+        ctx.rotate(p.rot || 0);
+
+        let col = p.color;
+        if (col.startsWith('hsl')) {
+          col = col.replace('hsl(', 'hsla(').replace(')', `, ${life})`);
+        }
+
+        // Soft glow halo for gas / sparks (volumetric feel)
+        if (p.glow || p.isGas) {
+          const glowSize = p.size * (p.isGas ? 2.8 : 2.2) * Math.max(0.2, life);
+          const grd = ctx.createRadialGradient(0, 0, 0, 0, 0, glowSize);
+          let glowCol = p.color;
+          if (glowCol.startsWith('hsl')) {
+            glowCol = glowCol.replace('hsl(', 'hsla(').replace(')', `, ${life * 0.35})`);
+          }
+          grd.addColorStop(0, glowCol);
+          grd.addColorStop(0.4, glowCol.replace(/[\d.]+\)$/, `${(life * 0.15).toFixed(3)})`));
+          grd.addColorStop(1, 'transparent');
+          ctx.fillStyle = grd;
+          ctx.beginPath();
+          ctx.arc(0, 0, glowSize, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Flowing trail (filament)
+        if (p.trail && life > 0.15) {
+          const trailLen = Math.min(18, 4 + Math.hypot(p.vx, p.vy) * 2.5);
+          const tx = -p.vx * trailLen * 0.35;
+          const ty = -p.vy * trailLen * 0.35;
+          const trailGrd = ctx.createLinearGradient(0, 0, tx, ty);
+          let c0 = p.color, c1 = p.color;
+          if (p.color.startsWith('hsl')) {
+            c0 = p.color.replace('hsl(', 'hsla(').replace(')', `, ${life * 0.55})`);
+            c1 = p.color.replace('hsl(', 'hsla(').replace(')', `, 0)`);
+          }
+          trailGrd.addColorStop(0, c0);
+          trailGrd.addColorStop(1, c1);
+          ctx.strokeStyle = trailGrd;
+          ctx.lineWidth = p.size * (p.isGas ? 0.7 : 0.4) * life;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(tx, ty);
+          ctx.stroke();
+        }
+
+        // Core particle
+        const coreR = p.size * Math.max(0.15, life) * (p.isGas ? 0.55 : 1);
+        ctx.globalAlpha = life * (p.isGas ? 0.55 : 0.9);
+        ctx.beginPath();
+        ctx.arc(0, 0, coreR, 0, Math.PI * 2);
+        ctx.fillStyle = col;
+        ctx.fill();
+
+        ctx.restore();
+      });
+      ctx.globalAlpha = 1;
+
+      const mass = parseFloat(massSlider.value);
+      const baseR = starRadius * 0.52;
+
+      // Draw celestial object
+      if (idleRemnant) {
+        // Continuous post-explosion remnant animation
+        ctx.save();
+        ctx.globalAlpha = 1;
+        if (remnantType === 'wd') drawWhiteDwarf(cx, cy, 1 + starPulse * 0.15);
+        else if (remnantType === 'ns') drawNeutronStar(cx, cy, 1);
+        else drawBlackHole(cx, cy, 1);
+        ctx.restore();
+      }
+      else if (currentStage === 'ready' || currentStage.includes('Main') || currentStage.includes('Giant') || currentStage.includes('Unstable')) {
+        const r = baseR * giantFactor * (1 + starPulse);
+        drawStar(cx, cy, r, mass, coreBrightness);
+      }
+      else if (currentStage.includes('Collapse') || currentStage.includes('Shock Bounce')) {
+        if (envelopeAlpha > 0.04) {
+          ctx.globalAlpha = envelopeAlpha * 0.38;
+          drawStar(cx, cy, baseR * Math.max(giantFactor, 0.7) * 1.55, mass, 0.55);
+          ctx.globalAlpha = 1;
+        }
+        drawCore(cx, cy, Math.max(coreRadius, 2.5), mass, coreBrightness);
+      }
+      else {
+        if (envelopeAlpha > 0.015) {
+          ctx.globalAlpha = envelopeAlpha * 0.22;
+          drawStar(cx, cy, baseR * 1.15, mass, 0.35);
+          ctx.globalAlpha = 1;
+        }
+        if (remnantAlpha > 0.01) {
+          ctx.save();
+          ctx.globalAlpha = remnantAlpha;
+          if (remnantType === 'wd') drawWhiteDwarf(cx, cy, remnantScale);
+          else if (remnantType === 'ns') drawNeutronStar(cx, cy, remnantScale);
+          else drawBlackHole(cx, cy, remnantScale);
+          ctx.restore();
+        } else if (currentStage.includes('Supernova') && remnantType !== 'bh') {
+          drawCore(cx, cy, 5 + (1 - explosionProgress) * 9, mass, 2.2);
+        }
+      }
+
+      ctx.restore(); // end camera transform
+
+      // --- Post-processing visual effects ---
+
+      // Chromatic aberration / color fringe at peak explosion
+      if (chromatic > 0.05) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+        ctx.globalAlpha = chromatic * 0.2;
+        ctx.fillStyle = '#ff4040';
+        ctx.fillRect(0, 0, w * 0.025, h);
+        ctx.fillStyle = '#4060ff';
+        ctx.fillRect(w * 0.975, 0, w * 0.025, h);
+        // subtle vertical fringe
+        ctx.globalAlpha = chromatic * 0.08;
+        ctx.fillStyle = '#ff8060';
+        ctx.fillRect(0, 0, w, h * 0.02);
+        ctx.fillStyle = '#60a0ff';
+        ctx.fillRect(0, h * 0.98, w, h * 0.02);
+        ctx.restore();
+      }
+
+      // Soft bloom ring when remnant is bright (NS / hot WD)
+      if (idleRemnant && (remnantType === 'ns' || remnantType === 'wd')) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+        const bloom = ctx.createRadialGradient(cx0, cy0, 8, cx0, cy0, 90);
+        bloom.addColorStop(0, remnantType === 'ns'
+          ? 'rgba(160, 210, 255, 0.12)'
+          : 'rgba(180, 220, 255, 0.1)');
+        bloom.addColorStop(1, 'transparent');
+        ctx.fillStyle = bloom;
+        ctx.fillRect(0, 0, w, h);
+        ctx.restore();
+      }
+
+      // Vignette — cinematic edge darkening
+      const vig = ctx.createRadialGradient(cx0, cy0, Math.min(w, h) * 0.25, cx0, cy0, Math.max(w, h) * 0.72);
+      vig.addColorStop(0, 'transparent');
+      vig.addColorStop(0.7, 'transparent');
+      vig.addColorStop(1, 'rgba(0, 0, 0, 0.55)');
+      ctx.fillStyle = vig;
+      ctx.fillRect(0, 0, w, h);
+
+      // Subtle energy haze during collapse / explosion
+      if (animating && (currentStage.includes('Collapse') || currentStage.includes('Shock') || currentStage.includes('Supernova'))) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+        ctx.globalAlpha = 0.04 + (flashIntensity || 0) * 0.06;
+        for (let i = 0; i < 3; i++) {
+          const hx = cx0 + Math.sin(time * 0.001 + i) * 30;
+          const hy = cy0 + Math.cos(time * 0.0013 + i * 2) * 20;
+          const hg = ctx.createRadialGradient(hx, hy, 0, hx, hy, 100 + i * 40);
+          hg.addColorStop(0, 'rgba(180, 200, 255, 0.5)');
+          hg.addColorStop(1, 'transparent');
+          ctx.fillStyle = hg;
+          ctx.fillRect(0, 0, w, h);
+        }
+        ctx.restore();
+      }
+    }
+
+    function drawStar(x, y, radius, mass, brightness = 1) {
+      // Approximate main-sequence spectral colors by mass:
+      // <1.5 Msun G/K yellow-orange | 1.5–3 A/F white | 3–8 B blue-white | >8 O blue
+      let hue, sat, light;
+      if (mass < 1.5) { hue = 38; sat = 70; light = 62; }       // G/K yellow
+      else if (mass < 3) { hue = 48; sat = 35; light = 78; }     // F/A white-yellow
+      else if (mass < 8) { hue = 210; sat = 45; light = 75; }    // B blue-white
+      else if (mass < 20) { hue = 220; sat = 55; light = 72; }   // early B / late O
+      else { hue = 225; sat = 65; light = 70; }                  // O-type blue
+
+      // Red giant / supergiant: photosphere cools → orange-red
+      if (giantFactor > 1.8) {
+        const coolAmt = Math.min(1, (giantFactor - 1.8) / 1.4);
+        hue = hue + (18 - hue) * coolAmt;       // toward deep orange-red
+        sat = Math.min(90, sat + coolAmt * 40);
+        light = Math.max(48, light - coolAmt * 18);
+      }
+
+      sat = Math.min(95, sat + Math.min(brightness - 1, 1) * 10);
+      light = Math.min(82, light + brightness * 6);
+      const color = `hsl(${hue}, ${sat}%, ${light}%)`;
+
+      const glowR = radius * (1.65 + brightness * 0.35);
+      const glow = ctx.createRadialGradient(x, y, radius * 0.15, x, y, glowR);
+      glow.addColorStop(0, color);
+      glow.addColorStop(0.4, color.replace('hsl', 'hsla').replace(')', ', 0.4)'));
+      glow.addColorStop(1, 'transparent');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(x, y, glowR, 0, Math.PI * 2);
+      ctx.fill();
+
+      const body = ctx.createRadialGradient(x - radius * 0.28, y - radius * 0.28, 0, x, y, radius);
+      body.addColorStop(0, `hsla(${hue}, ${Math.max(10, sat - 30)}%, 96%, 0.95)`);
+      body.addColorStop(0.5, color);
+      body.addColorStop(1, `hsl(${hue}, ${sat}%, ${Math.max(18, light - 28)}%)`);
+      ctx.fillStyle = body;
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Surface convection / hot spots on giant (cooler, reddish)
+      if (giantFactor > 1.6) {
+        for (let i = 0; i < 5; i++) {
+          const a = time * 0.0008 + i * 1.35;
+          const dist = radius * (0.35 + (i % 3) * 0.12);
+          const px = x + Math.cos(a) * dist;
+          const py = y + Math.sin(a * 1.25) * dist * 0.9;
+          const sz = radius * (0.1 + (i % 2) * 0.06);
+          ctx.beginPath();
+          ctx.arc(px, py, sz, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 170, 70, ${0.12 + starPulse * 0.5})`;
+          ctx.fill();
+        }
+      }
+    }
+
+    function drawCore(x, y, radius, mass, brightness = 1) {
+      // Collapsing iron core is extremely hot → blue-white to white, not orange
+      const r = Math.max(radius, 2);
+      const hot = Math.min(brightness, 3);
+      const grd = ctx.createRadialGradient(x, y, 0, x, y, r * 1.9);
+      grd.addColorStop(0, `rgba(240, 248, 255, ${0.95 * Math.min(hot, 2.2)})`);
+      grd.addColorStop(0.2, `rgba(200, 230, 255, ${0.85})`);
+      grd.addColorStop(0.5, `rgba(255, 220, 180, ${0.55 + hot * 0.1})`);
+      grd.addColorStop(0.8, `rgba(255, 140, 80, 0.35)`);
+      grd.addColorStop(1, 'rgba(40, 10, 0, 0)');
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      ctx.arc(x, y, r * 1.9, 0, Math.PI * 2);
+      ctx.fill();
+
+      const coreGrd = ctx.createRadialGradient(x - r * 0.25, y - r * 0.25, 0, x, y, r);
+      coreGrd.addColorStop(0, '#f8fbff');
+      coreGrd.addColorStop(0.4, '#d0e8ff');
+      coreGrd.addColorStop(0.75, '#ffe0b0');
+      coreGrd.addColorStop(1, '#ff8040');
+      ctx.fillStyle = coreGrd;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawWhiteDwarf(x, y, scale = 1) {
+      // Hot white dwarfs appear blue-white; planetary nebulae often show [O III] teal
+      const r = 13.5 * scale;
+      const glow = ctx.createRadialGradient(x, y, 0, x, y, r * 4.2);
+      glow.addColorStop(0, 'rgba(220, 240, 255, 0.95)');
+      glow.addColorStop(0.35, 'rgba(140, 200, 255, 0.4)');
+      glow.addColorStop(0.7, 'rgba(100, 190, 180, 0.12)');
+      glow.addColorStop(1, 'transparent');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(x, y, r * 4.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      const body = ctx.createRadialGradient(x - 3, y - 3, 0, x, y, r);
+      body.addColorStop(0, '#ffffff');
+      body.addColorStop(0.5, '#d8ecff');
+      body.addColorStop(1, '#7eb0e8');
+      ctx.fillStyle = body;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Planetary nebula shells — [O III]-like teal + soft blue
+      const nebulaProgress = Math.min(1, explosionProgress + 0.25);
+      for (let i = 0; i < 3; i++) {
+        const nr = (52 + i * 34) * nebulaProgress * scale + i * 9;
+        ctx.beginPath();
+        ctx.arc(x, y, nr, 0, Math.PI * 2);
+        const teal = i === 1;
+        ctx.strokeStyle = teal
+          ? `rgba(120, 210, 190, ${0.22 - i * 0.04})`
+          : `rgba(140, 195, 255, ${0.24 - i * 0.055})`;
+        ctx.lineWidth = 2.6 - i * 0.45;
+        ctx.stroke();
+      }
+    }
+
+    function drawNeutronStar(x, y, scale = 1) {
+      // Neutron star surface is extremely hot → blue-white / soft X-ray visual
+      const r = 8.8 * scale;
+
+      const glow = ctx.createRadialGradient(x, y, 0, x, y, r * 6.5);
+      glow.addColorStop(0, 'rgba(230, 245, 255, 0.95)');
+      glow.addColorStop(0.2, 'rgba(160, 210, 255, 0.55)');
+      glow.addColorStop(0.45, 'rgba(120, 180, 255, 0.2)');
+      glow.addColorStop(0.7, 'rgba(100, 140, 220, 0.08)');
+      glow.addColorStop(1, 'transparent');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(x, y, r * 6.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      const body = ctx.createRadialGradient(x - 2, y - 2, 0, x, y, r);
+      body.addColorStop(0, '#f4f9ff');
+      body.addColorStop(0.45, '#c8e0ff');
+      body.addColorStop(1, '#6a9fd4');
+      ctx.fillStyle = body;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Magnetic field lines (cooler cyan)
+      ctx.strokeStyle = 'rgba(140, 200, 255, 0.4)';
+      ctx.lineWidth = 1.6 * scale;
+      for (let i = 0; i < 4; i++) {
+        ctx.beginPath();
+        ctx.ellipse(x, y, (24 + i * 12) * scale, (7.5 + i * 3.8) * scale, accretionAngle + i * 0.55, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Pulsar beams (conical) — energetic, blue-white / synchrotron-like
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(accretionAngle * 1.55);
+      const beamGrad = ctx.createLinearGradient(0, 0, 0, -110 * scale);
+      beamGrad.addColorStop(0, 'rgba(200, 230, 255, 0.4)');
+      beamGrad.addColorStop(0.5, 'rgba(160, 200, 255, 0.15)');
+      beamGrad.addColorStop(1, 'rgba(120, 170, 255, 0)');
+      ctx.fillStyle = beamGrad;
+      ctx.beginPath();
+      ctx.moveTo(-3 * scale, 0);
+      ctx.lineTo(-14 * scale, -115 * scale);
+      ctx.lineTo(14 * scale, -115 * scale);
+      ctx.lineTo(3 * scale, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(-3 * scale, 0);
+      ctx.lineTo(-14 * scale, 115 * scale);
+      ctx.lineTo(14 * scale, 115 * scale);
+      ctx.lineTo(3 * scale, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawBlackHole(x, y, scale = 1) {
+      const rs = Math.max(bhHorizon * scale, 6.5 * scale);
+      const photonSphere = rs * 1.5;   // approximate photon sphere radius
+      const einsteinRing = rs * 2.6;   // characteristic lensing ring
+
+      // --- Gravitational lensing: warped background stars ---
+      // Draw a field of stars that are radially distorted toward the BH
+      const lensStars = 28;
+      for (let i = 0; i < lensStars; i++) {
+        // Deterministic-ish positions based on index + slow drift
+        const baseAngle = (i / lensStars) * Math.PI * 2 + accretionAngle * 0.08;
+        const baseDist = rs * (3.2 + (i % 7) * 0.55 + Math.sin(i * 1.7) * 0.4);
+        // Lensing distortion: stars near the critical curve are stretched tangentially
+        // and pulled slightly inward (simple thin-lens approximation visual)
+        const u = baseDist / einsteinRing; // impact parameter in Einstein units
+        let lensedDist = baseDist;
+        let stretch = 1;
+        if (u > 0.85 && u < 2.8) {
+          // Magnification peaks near Einstein ring
+          const near = Math.abs(u - 1.0);
+          stretch = 1 + 2.8 * Math.exp(-near * near * 8);
+          // Radial compression toward the ring
+          lensedDist = einsteinRing + (baseDist - einsteinRing) * (0.55 + near * 0.3);
+        }
+        const sx = x + Math.cos(baseAngle) * lensedDist;
+        const sy = y + Math.sin(baseAngle) * lensedDist * 0.92; // slight vertical squash for disk plane feel
+        const starSize = (0.6 + (i % 3) * 0.35) * stretch * scale;
+        const alpha = Math.min(0.95, 0.25 + stretch * 0.25);
+
+        ctx.beginPath();
+        ctx.ellipse(sx, sy, starSize * stretch * 0.7, starSize * 0.45, baseAngle, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(220, 230, 255, ${alpha * 0.7})`;
+        ctx.fill();
+        // Bright core
+        ctx.beginPath();
+        ctx.arc(sx, sy, starSize * 0.35, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+        ctx.fill();
+      }
+
+      // Secondary lensed arcs (Einstein-ring fragments)
+      ctx.save();
+      ctx.translate(x, y);
+      for (let a = 0; a < 3; a++) {
+        const arcStart = accretionAngle * 0.4 + a * 2.1;
+        const arcLen = 0.7 + (a % 2) * 0.35;
+        ctx.beginPath();
+        ctx.arc(0, 0, einsteinRing * (0.95 + a * 0.04), arcStart, arcStart + arcLen);
+        ctx.strokeStyle = `rgba(180, 200, 255, ${0.22 - a * 0.05})`;
+        ctx.lineWidth = (2.5 - a * 0.5) * scale;
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Outer glow — mixed hot (blue) + cooler (orange) disk emission
+      const ring = ctx.createRadialGradient(x, y, rs * 0.75, x, y, rs * 3.8);
+      ring.addColorStop(0, 'transparent');
+      ring.addColorStop(0.2, 'rgba(180, 210, 255, 0.12)');
+      ring.addColorStop(0.38, 'rgba(255, 200, 120, 0.4)');
+      ring.addColorStop(0.52, 'rgba(255, 160, 80, 0.22)');
+      ring.addColorStop(0.7, 'rgba(255, 90, 40, 0.12)');
+      ring.addColorStop(1, 'transparent');
+      ctx.fillStyle = ring;
+      ctx.beginPath();
+      ctx.arc(x, y, rs * 3.8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Accretion disk — temperature gradient:
+      // inner (hot) blue-white → white → yellow → orange → red (outer)
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(-0.42 + Math.sin(accretionAngle * 0.28) * 0.06);
+      ctx.scale(1, 0.255);
+      const disk = ctx.createRadialGradient(0, 0, rs * 0.85, 0, 0, rs * 3.1);
+      disk.addColorStop(0, 'rgba(220, 235, 255, 0.95)');   // hottest inner
+      disk.addColorStop(0.15, 'rgba(255, 250, 240, 0.9)');  // white
+      disk.addColorStop(0.35, 'rgba(255, 220, 140, 0.85)'); // yellow
+      disk.addColorStop(0.55, 'rgba(255, 150, 60, 0.7)');   // orange
+      disk.addColorStop(0.75, 'rgba(220, 70, 30, 0.4)');    // red
+      disk.addColorStop(1, 'transparent');
+      ctx.fillStyle = disk;
+      ctx.beginPath();
+      ctx.arc(0, 0, rs * 3.1, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Orbiting hotspot — hotter patch (blue-white)
+      const hotAngle = accretionAngle * 1.8;
+      const hotR = rs * 1.55;
+      ctx.fillStyle = 'rgba(230, 245, 255, 0.65)';
+      ctx.beginPath();
+      ctx.arc(Math.cos(hotAngle) * hotR, Math.sin(hotAngle) * hotR * 0.3, rs * 0.55, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // --- Photon sphere / strong lensing ring ---
+      // Soft glow band at photon sphere
+      const psGlow = ctx.createRadialGradient(x, y, photonSphere * 0.85, x, y, photonSphere * 1.35);
+      psGlow.addColorStop(0, 'transparent');
+      psGlow.addColorStop(0.4, 'rgba(255, 220, 150, 0.12)');
+      psGlow.addColorStop(0.5, 'rgba(255, 240, 200, 0.28)');
+      psGlow.addColorStop(0.6, 'rgba(255, 220, 150, 0.12)');
+      psGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = psGlow;
+      ctx.beginPath();
+      ctx.arc(x, y, photonSphere * 1.35, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Outer photon ring
+      ctx.beginPath();
+      ctx.arc(x, y, photonSphere * 1.15, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255, 230, 180, 0.35)';
+      ctx.lineWidth = 4.5 * scale;
+      ctx.stroke();
+
+      // Primary bright photon ring (unstable circular orbit locus)
+      ctx.beginPath();
+      ctx.arc(x, y, photonSphere, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255, 250, 230, 0.95)';
+      ctx.lineWidth = 2.8 * scale;
+      ctx.stroke();
+
+      // Inner secondary ring
+      ctx.beginPath();
+      ctx.arc(x, y, rs * 1.22, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255, 220, 160, 0.45)';
+      ctx.lineWidth = 1.4 * scale;
+      ctx.stroke();
+
+      // --- Dynamic photon paths (unstable orbits) ---
+      photonPaths.forEach(p => {
+        if (p.trail.length < 2) return;
+        // Trail
+        ctx.beginPath();
+        for (let t = 0; t < p.trail.length; t++) {
+          const pt = p.trail[t];
+          if (t === 0) ctx.moveTo(pt.x, pt.y);
+          else ctx.lineTo(pt.x, pt.y);
+        }
+        const trailAlpha = p.life * p.brightness * 0.7;
+        ctx.strokeStyle = p.fate === 'capture'
+          ? `rgba(255, 120, 80, ${trailAlpha})`
+          : p.fate === 'scatter'
+            ? `rgba(180, 210, 255, ${trailAlpha})`
+            : `rgba(255, 240, 200, ${trailAlpha})`;
+        ctx.lineWidth = 1.6 * scale;
+        ctx.lineJoin = 'round';
+        ctx.stroke();
+
+        // Photon head
+        const head = p.trail[p.trail.length - 1];
+        ctx.beginPath();
+        ctx.arc(head.x, head.y, 2.2 * scale, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 240, ${p.life * p.brightness})`;
+        ctx.fill();
+      });
+
+      // Event horizon (pure black — nothing escapes)
+      ctx.fillStyle = '#000';
+      ctx.beginPath();
+      ctx.arc(x, y, rs, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Sharp edge of the shadow
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
+      ctx.lineWidth = 3.5 * scale;
+      ctx.beginPath();
+      ctx.arc(x, y, rs - 0.5, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Very thin bright rim at the shadow edge
+      ctx.strokeStyle = 'rgba(255, 245, 210, 0.85)';
+      ctx.lineWidth = 1.6 * scale;
+      ctx.beginPath();
+      ctx.arc(x, y, rs + 1.5 * scale, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // Initial draw
+    drawFrame();
+  </script>
+</body>
+</html>
