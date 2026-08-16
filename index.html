@@ -10,33 +10,78 @@
       --bg: #0b0f19;
       --card: #111827;
       --border: rgba(255, 255, 255, 0.08);
-      --cyan: #06b6d4;
-      --purple: #8b5cf6;
       --text: #f3f4f6;
       --muted: #9ca3af;
+
+      --cyan: #06b6d4;
+      --purple: #8b5cf6;
+      --gold: #f59e0b;
+      --pink: #ec4899;
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Inter', sans-serif;
-      background: var(--bg);
       color: var(--text);
       line-height: 1.6;
       min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      background:
+        radial-gradient(1200px 600px at 20% -10%, rgba(6, 182, 212, 0.12), transparent 60%),
+        radial-gradient(900px 500px at 90% 10%, rgba(139, 92, 246, 0.12), transparent 55%),
+        radial-gradient(800px 500px at 50% 100%, rgba(245, 158, 11, 0.06), transparent 55%),
+        var(--bg);
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      background-image:
+        radial-gradient(1.5px 1.5px at 12% 18%, rgba(255,255,255,0.7) 50%, transparent 51%),
+        radial-gradient(1.5px 1.5px at 28% 72%, rgba(255,255,255,0.55) 50%, transparent 51%),
+        radial-gradient(1.5px 1.5px at 46% 32%, rgba(255,255,255,0.65) 50%, transparent 51%),
+        radial-gradient(1.5px 1.5px at 63% 58%, rgba(255,255,255,0.5) 50%, transparent 51%),
+        radial-gradient(1.5px 1.5px at 81% 22%, rgba(255,255,255,0.7) 50%, transparent 51%),
+        radial-gradient(1.5px 1.5px at 88% 78%, rgba(255,255,255,0.45) 50%, transparent 51%),
+        radial-gradient(1.5px 1.5px at 35% 12%, rgba(255,255,255,0.4) 50%, transparent 51%),
+        radial-gradient(1.5px 1.5px at 70% 40%, rgba(255,255,255,0.5) 50%, transparent 51%);
+      animation: starDrift 40s linear infinite;
+      opacity: 0.7;
+    }
+
+    body::after {
+      background-image:
+        radial-gradient(1px 1px at 18% 40%, rgba(255,255,255,0.45) 50%, transparent 51%),
+        radial-gradient(1px 1px at 55% 15%, rgba(255,255,255,0.35) 50%, transparent 51%),
+        radial-gradient(1px 1px at 72% 68%, rgba(255,255,255,0.4) 50%, transparent 51%),
+        radial-gradient(1px 1px at 40% 85%, rgba(255,255,255,0.3) 50%, transparent 51%),
+        radial-gradient(1px 1px at 92% 48%, rgba(255,255,255,0.35) 50%, transparent 51%);
+      animation: starDrift 60s linear infinite reverse;
+      opacity: 0.5;
+    }
+
+    @keyframes starDrift {
+      from { transform: translateY(0); }
+      to { transform: translateY(-40px); }
     }
 
     .container {
       max-width: 1080px;
       margin: 0 auto;
       padding: 0 24px;
+      position: relative;
+      z-index: 1;
     }
 
-    /* ===== HERO ===== */
     header {
       padding: 80px 0 60px;
       text-align: center;
@@ -71,7 +116,7 @@
     .hero-desc {
       font-size: 1.1rem;
       color: var(--muted);
-      max-width: 580px;
+      max-width: 620px;
       margin: 0 auto 28px;
     }
 
@@ -91,10 +136,7 @@
       border: 1px solid var(--border);
     }
 
-    /* ===== SECTION ===== */
-    section {
-      padding: 40px 0 60px;
-    }
+    section { padding: 40px 0 60px; }
 
     .section-title {
       font-family: 'Space Grotesk', sans-serif;
@@ -113,7 +155,6 @@
       background: var(--border);
     }
 
-    /* ===== PROJECTS ===== */
     .projects {
       display: flex;
       flex-direction: column;
@@ -121,16 +162,71 @@
     }
 
     .project-card {
-      background: var(--card);
+      background: rgba(17, 24, 39, 0.92);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 28px;
-      transition: border-color 0.25s, transform 0.25s;
+      transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+      backdrop-filter: blur(6px);
     }
 
     .project-card:hover {
-      border-color: rgba(6, 182, 212, 0.4);
       transform: translateY(-3px);
+    }
+
+    /* different tones */
+    .card-headphones {
+      border-color: rgba(6, 182, 212, 0.28);
+      box-shadow: 0 0 0 1px rgba(6, 182, 212, 0.05);
+    }
+    .card-headphones:hover {
+      border-color: rgba(6, 182, 212, 0.55);
+      box-shadow: 0 10px 30px rgba(6, 182, 212, 0.08);
+    }
+    .card-headphones .icon-badge { background: rgba(6, 182, 212, 0.12); color: #22d3ee; }
+    .card-headphones .project-tags span { background: rgba(6, 182, 212, 0.12); color: #22d3ee; }
+    .card-headphones .btn { background: linear-gradient(135deg, #06b6d4, #3b82f6); }
+
+    .card-compound {
+      border-color: rgba(245, 158, 11, 0.28);
+      box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.05);
+    }
+    .card-compound:hover {
+      border-color: rgba(245, 158, 11, 0.55);
+      box-shadow: 0 10px 30px rgba(245, 158, 11, 0.08);
+    }
+    .card-compound .icon-badge { background: rgba(245, 158, 11, 0.12); color: #fbbf24; }
+    .card-compound .project-tags span { background: rgba(245, 158, 11, 0.12); color: #fbbf24; }
+    .card-compound .btn { background: linear-gradient(135deg, #f59e0b, #ef4444); }
+
+    .card-stellar {
+      border-color: rgba(139, 92, 246, 0.28);
+      box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.05);
+    }
+    .card-stellar:hover {
+      border-color: rgba(139, 92, 246, 0.55);
+      box-shadow: 0 10px 30px rgba(139, 92, 246, 0.08);
+    }
+    .card-stellar .icon-badge { background: rgba(139, 92, 246, 0.12); color: #c4b5fd; }
+    .card-stellar .project-tags span { background: rgba(139, 92, 246, 0.12); color: #c4b5fd; }
+    .card-stellar .btn { background: linear-gradient(135deg, #8b5cf6, #ec4899); }
+
+    .project-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .icon-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
     }
 
     .project-header {
@@ -139,13 +235,14 @@
       justify-content: space-between;
       align-items: flex-start;
       gap: 12px;
-      margin-bottom: 14px;
+      width: 100%;
     }
 
     .project-card h2 {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.35rem;
+      font-size: 1.3rem;
       font-weight: 600;
+      margin-bottom: 8px;
     }
 
     .project-tags {
@@ -158,15 +255,13 @@
       font-size: 0.72rem;
       padding: 3px 10px;
       border-radius: 5px;
-      background: rgba(6, 182, 212, 0.1);
-      color: var(--cyan);
     }
 
     .project-desc {
       color: var(--muted);
       font-size: 0.95rem;
       margin-bottom: 18px;
-      max-width: 720px;
+      max-width: 760px;
     }
 
     .project-meta {
@@ -188,7 +283,6 @@
       align-items: center;
       gap: 8px;
       padding: 10px 18px;
-      background: linear-gradient(135deg, var(--cyan), var(--purple));
       color: #fff;
       text-decoration: none;
       font-size: 0.9rem;
@@ -198,11 +292,10 @@
     }
 
     .btn:hover {
-      opacity: 0.9;
+      opacity: 0.92;
       transform: translateY(-1px);
     }
 
-    /* ===== SKILLS ===== */
     .skills-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -210,7 +303,7 @@
     }
 
     .skill-group {
-      background: var(--card);
+      background: rgba(17, 24, 39, 0.92);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 18px 20px;
@@ -230,9 +323,8 @@
       color: var(--muted);
     }
 
-    /* ===== CONTACT ===== */
     .contact-box {
-      background: var(--card);
+      background: rgba(17, 24, 39, 0.92);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 32px;
@@ -276,6 +368,8 @@
       color: var(--muted);
       font-size: 0.85rem;
       border-top: 1px solid var(--border);
+      position: relative;
+      z-index: 1;
     }
 
     @media (max-width: 640px) {
@@ -286,15 +380,13 @@
   </style>
 </head>
 <body>
-
   <div class="container">
 
-    <!-- HERO -->
     <header>
       <div class="badge">Interactive Web & 3D</div>
       <h1>Creative Tech Portfolio</h1>
       <p class="hero-desc">
-        Frontend developer focused on interactive experiences, real-time 3D, and turning complex ideas into something people can actually play with.
+        Building interactive experiences that turn complex ideas into something people can see, play with, and understand.
       </p>
       <div class="hero-tags">
         <span>Three.js</span>
@@ -305,24 +397,29 @@
       </div>
     </header>
 
-    <!-- PROJECTS -->
     <section>
       <h2 class="section-title">Selected Work</h2>
 
       <div class="projects">
 
-        <!-- Project 1 -->
-        <article class="project-card">
-          <div class="project-header">
-            <h2>Cyberpunk Headphones Configurator</h2>
-            <div class="project-tags">
-              <span>Three.js</span>
-              <span>GSAP</span>
-              <span>Product Configurator</span>
+        <!-- Headphones -->
+        <article class="project-card card-headphones">
+          <div class="project-top">
+            <div class="icon-badge">🎧</div>
+            <div class="project-header">
+              <div>
+                <h2>Cyberpunk Headphones Configurator</h2>
+                <div class="project-tags">
+                  <span>Three.js</span>
+                  <span>GSAP</span>
+                  <span>Product Configurator</span>
+                </div>
+              </div>
             </div>
           </div>
           <p class="project-desc">
-            Real-time 3D product customizer that lets users switch materials, colors, and view an exploded assembly — while the price updates instantly. Built to demonstrate how interactive 3D can improve product understanding before purchase.
+            Real-time 3D product configurator that lets users change materials, colors, and assembly views instantly.
+            Built to show how interactive 3D can make a product easier to understand before purchase.
           </p>
           <div class="project-meta">
             <div><strong>Focus:</strong> E-commerce & 3D Web</div>
@@ -331,41 +428,55 @@
           <a href="headphones.html" target="_blank" class="btn">Launch Demo →</a>
         </article>
 
-        <!-- Project 2 -->
-<article class="project-card">
-  <div class="project-header">
-    <h2>Compound Interest Visualizer</h2>
-    <div class="project-tags">
-      <span>FinTech</span>
-      <span>Interactive Explainer</span>
-      <span>Math Visualization</span>
-    </div>
-  </div>
-  <p class="project-desc">
-    An interactive tool that shows how compound interest grows over time compared to plain cash saving. Users can adjust deposit, monthly contribution, return rate, and time horizon — then watch the difference play out in real time.
-  </p>
-  <div class="project-meta">
-    <div><strong>Focus:</strong> FinTech & Education</div>
-    <div><strong>Stack:</strong> Interactive UI, Animation</div>
-  </div>
-  <a href="Compound.html" target="_blank" class="btn">Launch Demo →</a>
-</article>
-        <!-- Project 3 -->
-        <article class="project-card">
-          <div class="project-header">
-            <h2>Stellar Collapse Simulator</h2>
-            <div class="project-tags">
-              <span>EdTech</span>
-              <span>Simulation</span>
-              <span>Astrophysics</span>
+        <!-- Compound -->
+        <article class="project-card card-compound">
+          <div class="project-top">
+            <div class="icon-badge">💰</div>
+            <div class="project-header">
+              <div>
+                <h2>Compound Interest Visualizer</h2>
+                <div class="project-tags">
+                  <span>FinTech</span>
+                  <span>Interactive Explainer</span>
+                  <span>Math Visualization</span>
+                </div>
+              </div>
             </div>
           </div>
           <p class="project-desc">
-            Interactive simulation of a core-collapse supernova. Users can adjust stellar mass and watch the formation of shockwaves and black holes in real time — built to make astrophysics concepts tangible through play.
+            Interactive tool that turns compound interest into something you can see instantly.
+            Users adjust deposit, monthly contribution, return rate, and time horizon — then watch a coin-stack comparison grow in real time against plain cash saving.
+            Built to make a hard financial idea feel obvious within seconds.
+          </p>
+          <div class="project-meta">
+            <div><strong>Focus:</strong> FinTech & Education</div>
+            <div><strong>Stack:</strong> Interactive UI, Animation, Real-time Visualization</div>
+          </div>
+          <a href="Compound.html" target="_blank" class="btn">Launch Demo →</a>
+        </article>
+
+        <!-- Stellar -->
+        <article class="project-card card-stellar">
+          <div class="project-top">
+            <div class="icon-badge">⭐</div>
+            <div class="project-header">
+              <div>
+                <h2>Stellar Collapse Simulator</h2>
+                <div class="project-tags">
+                  <span>EdTech</span>
+                  <span>Simulation</span>
+                  <span>Astrophysics</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="project-desc">
+            Interactive simulation that shows how a star’s mass decides its final fate — white dwarf, neutron star, or black hole.
+            Users adjust key values and watch the collapse process unfold, turning an abstract astrophysics idea into something visible.
           </p>
           <div class="project-meta">
             <div><strong>Focus:</strong> Scientific Visualization</div>
-            <div><strong>Stack:</strong> Canvas, Particle Systems</div>
+            <div><strong>Stack:</strong> Interactive Simulation, Visual Storytelling</div>
           </div>
           <a href="stellar.html" target="_blank" class="btn">Launch Demo →</a>
         </article>
@@ -373,13 +484,12 @@
       </div>
     </section>
 
-    <!-- SKILLS -->
     <section>
       <h2 class="section-title">Skills & Tools</h2>
       <div class="skills-grid">
         <div class="skill-group">
           <h3>3D & Motion</h3>
-          <p>Three.js, WebGL, GSAP, Shader basics</p>
+          <p>Three.js, WebGL, GSAP, Interactive animation</p>
         </div>
         <div class="skill-group">
           <h3>Frontend</h3>
@@ -387,34 +497,29 @@
         </div>
         <div class="skill-group">
           <h3>Visualization</h3>
-          <p>Canvas API, Data-driven interaction, Simulation</p>
+          <p>Data-driven interaction, Simulation, Explainer design</p>
         </div>
         <div class="skill-group">
-          <h3>Approach</h3>
-          <p>Interactive prototypes, Clear UX for complex topics</p>
+          <h3>Working Style</h3>
+          <p>Idea to prototype, AI-assisted creation, System thinking</p>
         </div>
       </div>
     </section>
 
-    <!-- CONTACT -->
     <section>
       <h2 class="section-title">Contact</h2>
       <div class="contact-box">
-        <p>Open to frontend / interactive / creative developer roles and freelance projects.</p>
+        <p>Currently building in public and preparing for future opportunities in interactive and AI-assisted creation.</p>
         <div class="contact-links">
-          <a href="mailto:your.email@example.com">Email</a>
           <a href="https://github.com/Neno01234" target="_blank">GitHub</a>
-          <!-- ใส่ LinkedIn ของคุณได้ถ้ามี -->
-          <!-- <a href="https://linkedin.com/in/yourname" target="_blank">LinkedIn</a> -->
         </div>
       </div>
     </section>
 
     <footer>
-      © 2026 · Built with focus on interaction & clarity
+      © 2026 · Built with focus on interaction, clarity, and systems
     </footer>
 
   </div>
-
 </body>
 </html>
