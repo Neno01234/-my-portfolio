@@ -1,0 +1,2324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stellar Collapse: From Stars to Black Holes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-deep: #050510;
+      --bg-card: #0c0c1a;
+      --accent: #7b5cff;
+      --accent-glow: #9d7dff;
+      --wd: #a8d8ff;
+      --ns: #ff9f43;
+      --bh: #ff3b5c;
+      --text: #e8e8f0;
+      --muted: #8a8aa0;
+      --success: #3dffa8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-deep);
+      color: var(--text);
+      line-height: 1.45;
+      overflow-x: hidden;
+    }
+
+    /* Starfield background */
+    #starfield {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Typography */
+    h1, h2, h3 {
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 0.05em;
+    }
+
+    /* Layout */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    /* Hero */
+    .hero {
+      min-height: 48vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2rem 1rem 1rem;
+      position: relative;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.9rem, 5vw, 3rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 0%, var(--accent-glow) 50%, #ff6b9d 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.4rem;
+      line-height: 1.12;
+    }
+
+    .hero p {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 540px;
+      margin-bottom: 1.1rem;
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 0.6rem;
+      animation: bounce 2s infinite;
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+
+    /* Sections */
+    section {
+      padding: 1.15rem 0;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      margin-bottom: 0.65rem;
+      color: var(--accent-glow);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--accent);
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid rgba(123, 92, 255, 0.15);
+      border-radius: 10px;
+      padding: 0.85rem 1.05rem;
+      margin-bottom: 0.7rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.7rem;
+    }
+
+    @media (max-width: 768px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    /* Interactive Simulator */
+    .simulator {
+      background: var(--bg-card);
+      border: 1px solid rgba(123, 92, 255, 0.2);
+      border-radius: 12px;
+      padding: 1rem 1.15rem 1.15rem;
+      box-shadow: 0 0 40px rgba(123, 92, 255, 0.08);
+    }
+
+    .sim-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 0.85rem 1.25rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .control-group {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .mass-display {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      color: var(--accent-glow);
+      margin-bottom: 0.3rem;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 8px;
+      background: #1a1a30;
+      border-radius: 4px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      background: var(--accent);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 12px var(--accent);
+      transition: transform 0.15s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    .btn {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 0.65rem 1.25rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #a855f7);
+      color: white;
+      box-shadow: 0 4px 20px rgba(123, 92, 255, 0.4);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(123, 92, 255, 0.55);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid #2a2a45;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+    .btn-secondary:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    /* Stage visualization */
+    .stage-area {
+      position: relative;
+      height: 420px;
+      background: radial-gradient(ellipse at center, #0f0f28 0%, #050510 70%);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 0.75rem;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    #simCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .stage-label {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: rgba(0,0,0,0.6);
+      padding: 0.4rem 0.9rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: var(--accent-glow);
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 0.05em;
+      z-index: 5;
+    }
+
+    .outcome-badge {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+      padding: 0.5rem 1.1rem;
+      border-radius: 8px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      z-index: 5;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.4s;
+    }
+
+    .outcome-badge.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .outcome-badge.wd { background: rgba(168, 216, 255, 0.2); color: var(--wd); border: 1px solid var(--wd); }
+    .outcome-badge.ns { background: rgba(255, 159, 67, 0.2); color: var(--ns); border: 1px solid var(--ns); }
+    .outcome-badge.bh { background: rgba(255, 59, 92, 0.2); color: var(--bh); border: 1px solid var(--bh); }
+
+    .stage-caption {
+      position: absolute;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 90%;
+      text-align: center;
+      font-size: 0.82rem;
+      color: rgba(220, 220, 255, 0.85);
+      background: rgba(0, 0, 0, 0.45);
+      padding: 0.45rem 1rem;
+      border-radius: 20px;
+      z-index: 5;
+      pointer-events: none;
+      transition: opacity 1s ease;
+      line-height: 1.35;
+      opacity: 1;
+    }
+    .stage-caption.faded {
+      opacity: 0;
+    }
+
+    .mass-presets {
+      display: flex;
+      gap: 0.35rem;
+      margin-top: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .preset-btn {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 20px;
+      border: 1px solid rgba(123, 92, 255, 0.35);
+      background: rgba(123, 92, 255, 0.08);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .preset-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+      background: rgba(123, 92, 255, 0.18);
+    }
+
+    .kbd-hint {
+      font-size: 0.72rem;
+      color: var(--muted);
+      opacity: 0.7;
+    }
+
+    /* Info panel under sim */
+    .sim-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65rem;
+    }
+
+    @media (max-width: 600px) {
+      .sim-info { grid-template-columns: 1fr; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .hero { min-height: 40vh; }
+      section { padding: 0.95rem 0; }
+    }
+
+    .info-box {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 0.7rem 0.9rem;
+    }
+
+    .info-box h4 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.78rem;
+      color: var(--accent-glow);
+      margin-bottom: 0.25rem;
+      letter-spacing: 0.04em;
+    }
+
+    .info-box p {
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    /* Outcome cards */
+    .outcome-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.65rem;
+    }
+
+    .outcome-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 0.9rem 1rem;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .outcome-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .outcome-card.wd { border-color: rgba(168, 216, 255, 0.3); }
+    .outcome-card.ns { border-color: rgba(255, 159, 67, 0.3); }
+    .outcome-card.bh { border-color: rgba(255, 59, 92, 0.3); }
+
+    .outcome-card h3 {
+      font-size: 1rem;
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .outcome-card.wd h3 { color: var(--wd); }
+    .outcome-card.ns h3 { color: var(--ns); }
+    .outcome-card.bh h3 { color: var(--bh); }
+
+    .mass-range {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 1.4rem;
+      margin: 0.75rem 0 0.25rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 0.75rem;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -1.65rem;
+      top: 6px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+    }
+
+    .timeline-item h4 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.92rem;
+      margin-bottom: 0.15rem;
+      color: var(--text);
+    }
+
+    .timeline-item p {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* Physics formulas */
+    .formula {
+      font-family: 'Orbitron', sans-serif;
+      background: rgba(123, 92, 255, 0.08);
+      border: 1px solid rgba(123, 92, 255, 0.2);
+      border-radius: 8px;
+      padding: 0.55rem 0.85rem;
+      text-align: center;
+      margin: 0.55rem 0 0.15rem;
+      color: var(--accent-glow);
+      font-size: 0.95rem;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 1.25rem 1rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      margin-top: 0.75rem;
+    }
+
+    footer a {
+      color: var(--accent-glow);
+      text-decoration: none;
+    }
+
+    /* Progress bar for animation */
+    .progress-track {
+      height: 4px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 2px;
+      overflow: hidden;
+      margin: 0.35rem 0 0.15rem;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), #ff6b9d);
+      transition: width 0.3s linear;
+    }
+
+    /* Tooltip for thresholds */
+    .threshold-markers {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+      font-family: 'Orbitron', sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="starfield"></canvas>
+
+  <!-- Hero -->
+  <header class="hero">
+    <h1>Stellar Collapse</h1>
+    <p>Mass decides the ending: white dwarf, neutron star, or black hole.</p>
+    <button class="btn btn-primary" onclick="document.getElementById('simulator').scrollIntoView({behavior:'smooth'})">
+      Launch Simulator
+    </button>
+    <div class="scroll-hint">↓ Scroll to learn</div>
+  </header>
+
+  <main class="container">
+    <!-- Science Overview -->
+    <section id="overview">
+      <h2 class="section-title">How Stars Die</h2>
+      <div class="card">
+        <p><strong>Fusion holds gravity at bay.</strong> When the fuel runs out, gravity wins — and mass picks the ending.</p>
+      </div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <h4>1. Fuel Runs Out</h4>
+          <p>Core fusion stops → star swells into a giant.</p>
+        </div>
+        <div class="timeline-item">
+          <h4>2. Core Collapses</h4>
+          <p>Iron core can't burn → free-fall in milliseconds.</p>
+        </div>
+        <div class="timeline-item">
+          <h4>3. Remnant Forms</h4>
+          <p>White dwarf, neutron star, or black hole — by mass.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Module -->
+    <section id="simulator">
+      <h2 class="section-title">Interactive Collapse Simulator</h2>
+      <div class="simulator">
+        <div class="sim-controls">
+          <div class="control-group">
+            <label for="massSlider">Progenitor Mass <span id="spectralLabel" style="color:var(--accent-glow);font-weight:600;">(B-type)</span></label>
+            <div class="mass-display"><span id="massValue">12</span> M<sub>☉</sub></div>
+            <input type="range" id="massSlider" min="0.2" max="40" step="0.1" value="12" />
+            <div class="threshold-markers">
+              <span>0.2</span>
+              <span style="color:var(--wd)">~8 WD</span>
+              <span style="color:var(--ns)">~25 NS</span>
+              <span style="color:var(--bh)">40 BH</span>
+            </div>
+            <div class="mass-presets">
+              <button type="button" class="preset-btn" onclick="setMass(1)">G · Sun</button>
+              <button type="button" class="preset-btn" onclick="setMass(3)">A-type</button>
+              <button type="button" class="preset-btn" onclick="setMass(12)">B-type</button>
+              <button type="button" class="preset-btn" onclick="setMass(30)">O-type</button>
+              <button type="button" class="preset-btn" onclick="setSMBH()" style="border-color:rgba(255,59,92,0.5);color:var(--bh);">Supermassive BH</button>
+            </div>
+          </div>
+          <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+            <button class="btn btn-primary" id="simBtn" onclick="runSimulation()">Simulate Collapse</button>
+            <button class="btn btn-secondary" id="resetBtn" onclick="resetSim()" disabled>Reset</button>
+            <span class="kbd-hint">Space to run / reset</span>
+          </div>
+        </div>
+
+        <div class="stage-area">
+          <div class="stage-label" id="stageLabel">Ready</div>
+          <div class="stage-caption" id="stageCaption">Choose a mass and press Simulate</div>
+          <canvas id="simCanvas"></canvas>
+          <div class="outcome-badge" id="outcomeBadge"></div>
+        </div>
+
+        <div class="progress-track">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="sim-info" style="margin-top:0.55rem;">
+          <div class="info-box">
+            <h4>Predicted Fate</h4>
+            <p id="fateText">Neutron star</p>
+          </div>
+          <div class="info-box">
+            <h4>Key Physics</h4>
+            <p id="physicsText">Core collapses → neutron pressure stops it → supernova.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Outcomes Deep Dive -->
+    <section id="outcomes">
+      <h2 class="section-title">Three Endings</h2>
+      <div class="outcome-grid">
+        <div class="outcome-card wd">
+          <h3>⚪ White Dwarf</h3>
+          <div class="mass-range">≲ 8 M☉</div>
+          <p>Earth-sized ember. Electron pressure holds it up. Our Sun’s future.</p>
+          <p style="margin-top:0.4rem; font-size:0.9rem; color:var(--muted);">Cap ≈ 1.4 M☉</p>
+        </div>
+        <div class="outcome-card ns">
+          <h3>🟠 Neutron Star</h3>
+          <div class="mass-range">~8–25 M☉</div>
+          <p>City-sized, nuclear density. Born in a supernova. Often a pulsar.</p>
+          <p style="margin-top:0.4rem; font-size:0.9rem; color:var(--muted);">Cap ≈ 2–2.5 M☉</p>
+        </div>
+        <div class="outcome-card bh">
+          <h3>🔴 Black Hole</h3>
+          <div class="mass-range">≳ 25 M☉</div>
+          <p>Gravity wins completely. Light can’t escape the horizon.</p>
+          <p style="margin-top:0.4rem; font-size:0.9rem; color:var(--muted);">R<sub>s</sub> ≈ 3 km × (M/M☉)</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Deeper Physics -->
+    <section id="physics">
+      <h2 class="section-title">Key Physics</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="color:var(--wd); margin-bottom:0.4rem;">Electron Degeneracy</h3>
+          <p>Quantum electron pressure props up white dwarfs. Over ~1.4 M☉ → collapse.</p>
+        </div>
+        <div class="card">
+          <h3 style="color:var(--ns); margin-bottom:0.4rem;">Neutron Degeneracy</h3>
+          <p>Nuclear-density neutrons hold neutron stars. Over ~2–2.5 M☉ → black hole.</p>
+        </div>
+      </div>
+      <div class="card" style="margin-top:0.65rem;">
+        <h3 style="color:var(--bh); margin-bottom:0.4rem;">Event Horizon</h3>
+        <p>Cross this line — not even light returns.</p>
+        <div class="formula">R<sub>s</sub> ≈ 3 (M / M☉) km</div>
+      </div>
+      <div class="card" style="margin-top:0.65rem;">
+        <h3 style="color:var(--accent-glow); margin-bottom:0.4rem;">Photon Sphere</h3>
+        <p>At 1.5× the horizon, light can skim unstable orbits — the bright ring in BH images.</p>
+        <div class="formula">r<sub>photon</sub> = 1.5 R<sub>s</sub></div>
+      </div>
+    </section>
+
+    <!-- Quick thresholds -->
+    <section>
+      <h2 class="section-title">Simulator Rules</h2>
+      <div class="card">
+        <ul style="padding-left:1.25rem; color:var(--muted); line-height:1.8;">
+          <li>&lt; 8 M☉ → white dwarf</li>
+          <li>8–25 M☉ → neutron star</li>
+          <li>&gt; 25 M☉ → stellar black hole</li>
+          <li>Supermassive BH mode → galactic nucleus (~10<sup>6</sup>–10<sup>9</sup> M☉)</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Notes -->
+    <section>
+      <h2 class="section-title">Keep in Mind</h2>
+      <div class="card">
+        <ul style="padding-left:1.25rem; color:var(--muted); line-height:1.8;">
+          <li>Thresholds are simplified for learning.</li>
+          <li>Real stars also depend on rotation, winds, and companions.</li>
+          <li>This is a demo — not a research code.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Learn by playing · Simplified physics · HTML + Three.js</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
+  <script>
+    // ========== Starfield ==========
+    const starCanvas = document.getElementById('starfield');
+    const starCtx = starCanvas.getContext('2d');
+    let stars = [];
+
+    function resizeStarfield() {
+      starCanvas.width = window.innerWidth;
+      starCanvas.height = window.innerHeight;
+      stars = Array.from({ length: 180 }, () => ({
+        x: Math.random() * starCanvas.width,
+        y: Math.random() * starCanvas.height,
+        r: Math.random() * 1.4 + 0.3,
+        a: Math.random(),
+        s: Math.random() * 0.02 + 0.005
+      }));
+    }
+    window.addEventListener('resize', resizeStarfield);
+    resizeStarfield();
+
+    function drawStars() {
+      starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+      stars.forEach(s => {
+        s.a += s.s;
+        if (s.a > 1 || s.a < 0) s.s *= -1;
+        starCtx.beginPath();
+        starCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        starCtx.fillStyle = `rgba(220, 220, 255, ${0.3 + s.a * 0.7})`;
+        starCtx.fill();
+      });
+      requestAnimationFrame(drawStars);
+    }
+    drawStars();
+    // ========== Simulator (Three.js 3D) ==========
+
+    const massSlider = document.getElementById('massSlider');
+    const massValue = document.getElementById('massValue');
+    const fateText = document.getElementById('fateText');
+    const physicsText = document.getElementById('physicsText');
+    const simBtn = document.getElementById('simBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const stageLabel = document.getElementById('stageLabel');
+    const stageCaption = document.getElementById('stageCaption');
+    const outcomeBadge = document.getElementById('outcomeBadge');
+    const progressBar = document.getElementById('progressBar');
+    const canvas = document.getElementById('simCanvas');
+
+    // --- Simulation state ---
+    let animating = false;
+    let idleRemnant = false;
+    let remnantType = 'ns';
+    let smbhMode = false;
+    let currentStage = 'ready';
+    let currentStageIdx = -1;
+    let stageStart = 0;
+    let time = 0;
+    let simMass = 12;
+    let giantFactor = 1;
+    let explosionProgress = 0;
+    let flashIntensity = 0;
+    let remnantAlpha = 0;
+    let remnantScale = 0;
+    let bhHorizon = 0;
+    let cameraZoom = 1;
+    let targetZoom = 1;
+    let accretionAngle = 0;
+    let envelopeAlpha = 1;
+    let coreBrightness = 1;
+    let captionFadeTimer = null;
+    let simTimers = [];
+    let idleRaf = null;
+    let mainRaf = null;
+    let audioCtx = null;
+    let clock = null;
+
+    const STAGE_DEFS = [
+      { name: 'Main Sequence', duration: 1300, progress: 5, caption: 'Fusion vs gravity — steady burn.' },
+      { name: 'Expanding to Giant', duration: 2300, progress: 18, caption: 'Fuel low → star balloons.' },
+      { name: 'Unstable Giant', duration: 1500, progress: 28, caption: 'Core heats. Clock is ticking.' },
+      { name: 'Core Collapse', duration: 1900, progress: 48, caption: 'Iron core free-falls.' },
+      { name: 'Shock Bounce', duration: 900, progress: 58, caption: 'Core rebounds — shock launches.' },
+      { name: 'Supernova Explosion', duration: 3000, progress: 80, caption: 'Outer layers blast into space.' },
+      { name: 'Remnant Settles', duration: 3200, progress: 100, caption: 'Mass picks the remnant.' }
+    ];
+
+    function isSimLocked() { return animating || idleRemnant; }
+
+    function trackTimeout(fn, ms) {
+      const id = setTimeout(() => {
+        simTimers = simTimers.filter(t => t !== id);
+        fn();
+      }, ms);
+      simTimers.push(id);
+    }
+    function clearSimTimers() {
+      simTimers.forEach(clearTimeout);
+      simTimers = [];
+    }
+
+    function showCaption(text, fadeAfterMs = null) {
+      if (!stageCaption) return;
+      if (captionFadeTimer) { clearTimeout(captionFadeTimer); captionFadeTimer = null; }
+      stageCaption.textContent = text;
+      stageCaption.classList.remove('faded');
+      if (fadeAfterMs != null) {
+        captionFadeTimer = setTimeout(() => {
+          stageCaption.classList.add('faded');
+          captionFadeTimer = null;
+        }, fadeAfterMs);
+      }
+    }
+
+    function getOutcome(mass) {
+      if (smbhMode) return 'smbh';
+      if (mass < 8) return 'wd';
+      if (mass <= 25) return 'ns';
+      return 'bh';
+    }
+
+    // Approximate main-sequence spectral type from mass (solar units)
+    function getSpectralType(mass) {
+      if (mass < 0.45) return 'M';
+      if (mass < 0.8) return 'K';
+      if (mass < 1.15) return 'G';
+      if (mass < 1.6) return 'F';
+      if (mass < 3.0) return 'A';
+      if (mass < 16) return 'B';
+      return 'O';
+    }
+
+    // Real-world approximate visual colors for spectral classes (OBAFGKM)
+    const SPECTRAL_COLORS = {
+      O: { color: 0x9bb0ff, emissive: 0x7a96ff, label: 'O-type · blue' },
+      B: { color: 0xaabfff, emissive: 0x8aa6ff, label: 'B-type · blue-white' },
+      A: { color: 0xcad7ff, emissive: 0xb0c4ff, label: 'A-type · white' },
+      F: { color: 0xf8f7ff, emissive: 0xe8e6ff, label: 'F-type · yellow-white' },
+      G: { color: 0xfff4ea, emissive: 0xffe2b8, label: 'G-type · yellow' },
+      K: { color: 0xffd2a1, emissive: 0xffb86b, label: 'K-type · orange' },
+      M: { color: 0xffcc6f, emissive: 0xffaa44, label: 'M-type · red' }
+    };
+
+    function updateSpectralLabel(mass) {
+      const el = document.getElementById('spectralLabel');
+      if (!el) return;
+      if (smbhMode) {
+        el.textContent = '(Supermassive BH)';
+        el.style.color = 'var(--bh)';
+        return;
+      }
+      const sp = getSpectralType(mass);
+      el.textContent = '(' + SPECTRAL_COLORS[sp].label + ')';
+      el.style.color = 'var(--accent-glow)';
+    }
+
+    function updateFate(mass, lockRemnantType = false) {
+      const outcome = getOutcome(mass);
+      if (!lockRemnantType) remnantType = outcome;
+      if (!fateText || !physicsText) return;
+      if (outcome === 'wd') {
+        fateText.textContent = 'White dwarf';
+        physicsText.textContent = 'Electron pressure wins. Nebula drifts away.';
+      } else if (outcome === 'ns') {
+        fateText.textContent = 'Neutron star';
+        physicsText.textContent = 'Core collapses → neutron pressure stops it → supernova.';
+      } else if (outcome === 'smbh') {
+        fateText.textContent = 'Supermassive black hole';
+        physicsText.textContent = 'AGN disk: T∝r⁻¾ — X-ray core → IR outer rim.';
+      } else {
+        fateText.textContent = 'Black hole';
+        physicsText.textContent = 'Horizon forms. Disk: hot blue-white in → cool red out (T∝r⁻¾).';
+      }
+    }
+
+    function centerStarView() {
+      if (typeof starGroup !== 'undefined' && starGroup) {
+        starGroup.position.set(0, 0, 0);
+        starGroup.rotation.set(0, 0, 0);
+      }
+      if (typeof remnantGroup !== 'undefined' && remnantGroup) {
+        remnantGroup.position.set(0, 0, 0);
+      }
+      if (typeof camera === 'undefined' || !camera) return;
+      camera.position.set(0, 1.35, 14);
+      camTargetX = 0; camTargetY = 1.35; camTargetZ = 14;
+      camera.lookAt(0, 0, 0);
+    }
+
+    function setMass(m) {
+      if (isSimLocked()) return;
+      smbhMode = false;
+      massSlider.disabled = false;
+      massSlider.value = m;
+      m = parseFloat(massSlider.value);
+      const mv = document.getElementById('massValue');
+      if (mv) {
+        mv.textContent = m;
+        if (mv.parentElement && !mv.parentElement.textContent.includes('M')) {
+          /* keep unit via parent */
+        }
+      }
+      // Restore solar-mass unit display
+      const md = document.querySelector('.mass-display');
+      if (md) md.innerHTML = '<span id="massValue">' + m + '</span> M<sub>☉</sub>';
+      updateFate(m);
+      updateSpectralLabel(m);
+      updateStarAppearance(m, 1);
+      if (typeof hideRemnant === 'function') hideRemnant();
+      if (typeof starGroup !== 'undefined') starGroup.visible = true;
+      centerStarView();
+      renderOnce();
+    }
+
+    function setSMBH() {
+      if (isSimLocked()) return;
+      smbhMode = true;
+      massSlider.disabled = true;
+      const md = document.querySelector('.mass-display');
+      if (md) md.innerHTML = '<span id="massValue">10<sup>6</sup>–10<sup>9</sup></span> M<sub>☉</sub>';
+      updateFate(1e8);
+      updateSpectralLabel(1e8);
+      if (typeof hideRemnant === 'function') hideRemnant();
+      if (typeof showRemnant === 'function') {
+        showRemnant('smbh');
+        remnantGroup.scale.setScalar(1.4);
+      }
+      centerStarView();
+      if (stageCaption) {
+        stageCaption.textContent = 'Supermassive BH ready — press Simulate.';
+        stageCaption.classList.remove('faded');
+      }
+      renderOnce();
+    }
+
+    massSlider.addEventListener('input', () => {
+      if (smbhMode) return;
+      const m = parseFloat(massSlider.value);
+      if (!isFinite(m)) return;
+      const mv = document.getElementById('massValue');
+      if (mv) mv.textContent = m;
+      updateFate(m, isSimLocked());
+      updateSpectralLabel(m);
+      if (!isSimLocked()) {
+        updateStarAppearance(m, 1);
+        if (typeof hideRemnant === 'function') hideRemnant();
+        if (typeof starGroup !== 'undefined' && starGroup) starGroup.visible = true;
+        centerStarView();
+        renderOnce();
+      }
+    });
+    updateFate(12);
+    updateSpectralLabel(12);
+
+    // Audio
+    function ensureAudio() {
+      if (!audioCtx) {
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+      }
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    }
+    function playBoom(intensity = 1) {
+      if (!audioCtx) return;
+      const t0 = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(55, t0);
+      osc.frequency.exponentialRampToValueAtTime(28, t0 + 0.8);
+      filter.type = 'lowpass';
+      filter.frequency.value = 180;
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(0.2 * intensity, t0 + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.4);
+      osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(t0); osc.stop(t0 + 1.5);
+      const bufferSize = audioCtx.sampleRate * 0.35;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 1.5);
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+      const nGain = audioCtx.createGain();
+      const nFilter = audioCtx.createBiquadFilter();
+      nFilter.type = 'bandpass';
+      nFilter.frequency.value = 400;
+      nGain.gain.setValueAtTime(0.16 * intensity, t0);
+      nGain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.4);
+      noise.connect(nFilter); nFilter.connect(nGain); nGain.connect(audioCtx.destination);
+      noise.start(t0);
+    }
+    function playCollapseTone() {
+      if (!audioCtx) return;
+      const t0 = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(120, t0);
+      osc.frequency.exponentialRampToValueAtTime(40, t0 + 1.2);
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(0.07, t0 + 0.1);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.3);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(t0); osc.stop(t0 + 1.4);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.code !== 'Space') return;
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+      e.preventDefault();
+      if (isSimLocked()) resetSim();
+      else runSimulation();
+    });
+
+    // ========== Three.js scene ==========
+    if (typeof THREE === 'undefined') {
+      stageCaption.textContent = 'Three.js failed to load — check network / CDN.';
+      console.error('THREE is undefined');
+    }
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x030308, 0.010);
+
+    const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 400);
+    camera.position.set(0, 1.35, 14);
+    let camTargetZ = 14, camTargetY = 1.35, camTargetX = 0;
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true,
+      powerPreference: 'high-performance'
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setClearColor(0x000000, 0);
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.18;
+    if (renderer.physicallyCorrectLights !== undefined) renderer.physicallyCorrectLights = true;
+
+    function makeSoftParticleTexture() {
+      const c = document.createElement('canvas');
+      c.width = c.height = 64;
+      const g = c.getContext('2d');
+      const grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+      grd.addColorStop(0, 'rgba(255,255,255,1)');
+      grd.addColorStop(0.22, 'rgba(255,255,255,0.9)');
+      grd.addColorStop(0.5, 'rgba(255,255,255,0.28)');
+      grd.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = grd;
+      g.fillRect(0, 0, 64, 64);
+      const tex = new THREE.CanvasTexture(c);
+      tex.needsUpdate = true;
+      return tex;
+    }
+    const softParticleTex = makeSoftParticleTexture();
+
+    function makeStarTexture(baseRGB) {
+      const c = document.createElement('canvas');
+      c.width = c.height = 256;
+      const g = c.getContext('2d');
+      g.fillStyle = 'rgb(' + baseRGB[0] + ',' + baseRGB[1] + ',' + baseRGB[2] + ')';
+      g.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 1000; i++) {
+        const x = Math.random() * 256, y = Math.random() * 256;
+        const r = 0.6 + Math.random() * 2.8;
+        const b = (Math.random() - 0.5) * 45;
+        g.fillStyle = 'rgba(255,' + (230 + b | 0) + ',' + (180 + b | 0) + ',' + (0.035 + Math.random() * 0.09) + ')';
+        g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+      }
+      const v = g.createRadialGradient(128, 128, 36, 128, 128, 128);
+      v.addColorStop(0, 'rgba(255,255,255,0)');
+      v.addColorStop(1, 'rgba(0,0,0,0.38)');
+      g.fillStyle = v;
+      g.fillRect(0, 0, 256, 256);
+      const tex = new THREE.CanvasTexture(c);
+      tex.needsUpdate = true;
+      return tex;
+    }
+    let starSurfaceTex = makeStarTexture([255, 224, 160]);
+
+    const keyLight = new THREE.PointLight(0xfff0dd, 1.65, 90, 2);
+    keyLight.position.set(0, 0, 0);
+    scene.add(keyLight);
+    const rimLight = new THREE.PointLight(0x6a8cff, 0.55, 70, 2);
+    rimLight.position.set(-9, 5, -7);
+    scene.add(rimLight);
+    const fillLight = new THREE.PointLight(0xff8060, 0.28, 50, 2);
+    fillLight.position.set(6, -3, 4);
+    scene.add(fillLight);
+    scene.add(new THREE.HemisphereLight(0x1a2040, 0x08060c, 0.55));
+    scene.add(new THREE.AmbientLight(0x12121c, 0.28));
+
+    // Background star field (3D points)
+    (function addBackgroundStars() {
+      const n = 1200;
+      const pos = new Float32Array(n * 3);
+      const col = new Float32Array(n * 3);
+      for (let i = 0; i < n; i++) {
+        const r = 40 + Math.random() * 120;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+        pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+        pos[i * 3 + 2] = r * Math.cos(phi);
+        const b = 0.5 + Math.random() * 0.5;
+        col[i * 3] = b * 0.85;
+        col[i * 3 + 1] = b * 0.9;
+        col[i * 3 + 2] = b;
+      }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+      const m = new THREE.PointsMaterial({
+        size: 0.18, map: softParticleTex, vertexColors: true, transparent: true, opacity: 0.9,
+        depthWrite: false, sizeAttenuation: true, blending: THREE.AdditiveBlending, alphaTest: 0.01
+      });
+      scene.add(new THREE.Points(g, m));
+    })();
+
+    // --- Star ---
+    const starGroup = new THREE.Group();
+    scene.add(starGroup);
+
+    const starGeo = new THREE.SphereGeometry(1, 64, 64);
+    const starMat = new THREE.MeshStandardMaterial({
+      color: 0xffe0a0,
+      emissive: 0xffc060,
+      emissiveIntensity: 0.95,
+      roughness: 0.42,
+      metalness: 0.08,
+      map: starSurfaceTex,
+      emissiveMap: starSurfaceTex
+    });
+    const starMesh = new THREE.Mesh(starGeo, starMat);
+    starGroup.add(starMesh);
+
+    // Multi-layer volumetric glow
+    const glowMats = [];
+    for (let i = 0; i < 5; i++) {
+      const gMat = new THREE.MeshBasicMaterial({
+        color: 0xffcc88,
+        transparent: true,
+        opacity: 0.16 - i * 0.028,
+        side: THREE.BackSide,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+      });
+      glowMats.push(gMat);
+      const glow = new THREE.Mesh(new THREE.SphereGeometry(1.12 + i * 0.22, 32, 32), gMat);
+      starGroup.add(glow);
+    }
+
+    // Collapsing core
+    const coreMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      emissive: 0xb8d8ff,
+      emissiveIntensity: 2.4,
+      roughness: 0.15,
+      metalness: 0.2
+    });
+    const coreMesh = new THREE.Mesh(new THREE.SphereGeometry(0.35, 32, 32), coreMat);
+    coreMesh.visible = false;
+    starGroup.add(coreMesh);
+    // Core corona
+    const coreGlowMat = new THREE.MeshBasicMaterial({
+      color: 0xc8e0ff, transparent: true, opacity: 0.35,
+      side: THREE.BackSide, depthWrite: false, blending: THREE.AdditiveBlending
+    });
+    const coreGlow = new THREE.Mesh(new THREE.SphereGeometry(0.55, 24, 24), coreGlowMat);
+    coreGlow.visible = false;
+    starGroup.add(coreGlow);
+
+    // --- Particle system (physics-driven) ---
+    const MAX_P = 5000;
+    const pPos = new Float32Array(MAX_P * 3);
+    const pCol = new Float32Array(MAX_P * 3);
+    const pSize = new Float32Array(MAX_P);
+    const pLife = new Float32Array(MAX_P);
+    const pVx = new Float32Array(MAX_P);
+    const pVy = new Float32Array(MAX_P);
+    const pVz = new Float32Array(MAX_P);
+    const pDecay = new Float32Array(MAX_P);
+    const pMass = new Float32Array(MAX_P); // for dynamics
+    let pCount = 0;
+    let pCursor = 0;
+
+    const pGeo = new THREE.BufferGeometry();
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+    pGeo.setAttribute('color', new THREE.BufferAttribute(pCol, 3));
+    // Use one size in material; vary opacity via color alpha isn't available in basic PointsMaterial without shader —
+    // we'll use size attenuation and color brightness for life
+    const pMat = new THREE.PointsMaterial({
+      size: 0.28,
+      map: softParticleTex,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.92,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      sizeAttenuation: true,
+      alphaTest: 0.01
+    });
+    const particlePoints = new THREE.Points(pGeo, pMat);
+    particlePoints.frustumCulled = false;
+    scene.add(particlePoints);
+
+    function spawnParticles(count, mode, speedMul, originSpread) {
+      speedMul = speedMul || 1;
+      originSpread = originSpread || 0.3;
+      for (let i = 0; i < count; i++) {
+        const idx = pCursor % MAX_P;
+        pCursor++;
+        if (pCount < MAX_P) pCount++;
+
+        // Filament-biased directions for more realistic ejecta streams
+        const filament = Math.floor(Math.random() * 14);
+        const baseAng = (filament / 14) * Math.PI * 2;
+        const spread = 0.35;
+        const theta = baseAng + (Math.random() - 0.5) * spread;
+        const phi = Math.acos(2 * Math.random() - 1) * 0.7 + Math.PI * 0.15;
+
+        const dirX = Math.sin(phi) * Math.cos(theta);
+        const dirY = Math.cos(phi) * 0.85 + (Math.random() - 0.5) * 0.2;
+        const dirZ = Math.sin(phi) * Math.sin(theta);
+        const len = Math.hypot(dirX, dirY, dirZ) || 1;
+
+        // Speed distribution: fast outer ejecta + slower dense clumps
+        const speed = (1.2 + Math.random() * 6.5) * speedMul * (0.55 + Math.random() * 0.9);
+        const ox = (Math.random() - 0.5) * originSpread;
+        const oy = (Math.random() - 0.5) * originSpread;
+        const oz = (Math.random() - 0.5) * originSpread;
+
+        pPos[idx * 3] = ox;
+        pPos[idx * 3 + 1] = oy;
+        pPos[idx * 3 + 2] = oz;
+        pVx[idx] = (dirX / len) * speed;
+        pVy[idx] = (dirY / len) * speed;
+        pVz[idx] = (dirZ / len) * speed;
+        pLife[idx] = 1;
+        pDecay[idx] = 0.003 + Math.random() * 0.009;
+        pMass[idx] = 0.4 + Math.random() * 1.4;
+        pSize[idx] = 0.08 + Math.random() * 0.25;
+
+        // Astrophysical colors
+        let r, g, b;
+        if (mode === 'wd') {
+          if (Math.random() > 0.3) { r = 0.45; g = 0.85; b = 1.0; }
+          else { r = 1.0; g = 0.4; b = 0.45; }
+        } else if (mode === 'bh') {
+          if (Math.random() > 0.4) { r = 0.7; g = 0.85; b = 1.0; }
+          else { r = 1.0; g = 0.45; b = 0.2; }
+        } else {
+          // SN: hot blue-white → cooling orange-red filaments
+          const t = Math.random();
+          if (t < 0.28) { r = 0.75; g = 0.9; b = 1.0; }       // hot plasma
+          else if (t < 0.55) { r = 1.0; g = 0.75; b = 0.35; }  // amber
+          else if (t < 0.8) { r = 1.0; g = 0.4; b = 0.18; }   // orange-red dust
+          else { r = 0.55; g = 0.7; b = 1.0; }                 // residual ionized gas
+        }
+        // Slight brightness scatter
+        const br = 0.9 + Math.random() * 0.35;
+        pCol[idx * 3] = Math.min(1.5, r * br);
+        pCol[idx * 3 + 1] = Math.min(1.5, g * br);
+        pCol[idx * 3 + 2] = Math.min(1.5, b * br);
+      }
+      pGeo.attributes.position.needsUpdate = true;
+      pGeo.attributes.color.needsUpdate = true;
+    }
+
+    function updateParticles(dt) {
+      // dt in seconds-ish (clamped)
+      const h = Math.min(dt, 0.05) * 60; // scale toward previous frame-rate units
+      const dragBase = Math.pow(0.992, h);
+      for (let i = 0; i < pCount; i++) {
+        if (pLife[i] <= 0) continue;
+
+        // Weak turbulence
+        const turb = 0.015 * h;
+        pVx[i] += (Math.random() - 0.5) * turb;
+        pVy[i] += (Math.random() - 0.5) * turb;
+        pVz[i] += (Math.random() - 0.5) * turb;
+
+        // Drag ~ 1/mass (lighter dust slows more)
+        const drag = Math.pow(dragBase, 1 / pMass[i]);
+        pVx[i] *= drag;
+        pVy[i] *= drag;
+        pVz[i] *= drag;
+
+        // Optional central gravity for BH fallback debris
+        if (remnantType === 'bh' && idleRemnant) {
+          const x = pPos[i * 3], y = pPos[i * 3 + 1], z = pPos[i * 3 + 2];
+          const r2 = x * x + y * y + z * z + 0.5;
+          const inv = 0.008 * h / r2;
+          pVx[i] -= x * inv;
+          pVy[i] -= y * inv;
+          pVz[i] -= z * inv;
+        }
+
+        pPos[i * 3] += pVx[i] * h * 0.045;
+        pPos[i * 3 + 1] += pVy[i] * h * 0.045;
+        pPos[i * 3 + 2] += pVz[i] * h * 0.045;
+
+        pLife[i] -= pDecay[i] * h;
+        if (pLife[i] <= 0) {
+          pLife[i] = 0;
+          // Hide dead particle far away
+          pPos[i * 3] = pPos[i * 3 + 1] = pPos[i * 3 + 2] = 9999;
+        } else {
+          // Dim with life
+          const dim = Math.max(0.05, pLife[i]);
+          pCol[i * 3] *= 0.995;
+          pCol[i * 3 + 1] *= 0.995;
+          pCol[i * 3 + 2] *= 0.995;
+          // Re-apply dim roughly
+          const s = dim;
+          pCol[i * 3] = Math.min(1, pCol[i * 3] * (0.7 + 0.3 * s) / (0.7 + 0.3 * Math.min(1, pLife[i] + 0.01)));
+        }
+      }
+      pGeo.attributes.position.needsUpdate = true;
+      pGeo.attributes.color.needsUpdate = true;
+    }
+
+    function clearParticles() {
+      pCount = 0;
+      pCursor = 0;
+      for (let i = 0; i < MAX_P; i++) {
+        pLife[i] = 0;
+        pPos[i * 3] = pPos[i * 3 + 1] = pPos[i * 3 + 2] = 9999;
+      }
+      pGeo.attributes.position.needsUpdate = true;
+    }
+
+    // --- Shockwave rings (expanding transparent tori) ---
+    const shockwaves = [];
+    function spawnShockwave(maxR, speed, colorHex, width) {
+      const geo = new THREE.TorusGeometry(0.2, width || 0.06, 12, 64);
+      const mat = new THREE.MeshBasicMaterial({
+        color: colorHex,
+        transparent: true,
+        opacity: 0.85,
+        depthWrite: false,
+        side: THREE.DoubleSide
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.rotation.x = Math.PI / 2;
+      scene.add(mesh);
+      shockwaves.push({ mesh, mat, r: 0.2, maxR, speed, life: 1, decay: 0.012 });
+    }
+    function updateShockwaves(h) {
+      for (let i = shockwaves.length - 1; i >= 0; i--) {
+        const sw = shockwaves[i];
+        sw.speed = Math.max(0.01, sw.speed * 0.992);
+        sw.r += sw.speed * h * 0.08;
+        sw.life -= sw.decay * h;
+        sw.mesh.scale.set(sw.r / 0.2, sw.r / 0.2, 1);
+        sw.mat.opacity = Math.max(0, sw.life * 0.75);
+        if (sw.life <= 0 || sw.r > sw.maxR) {
+          scene.remove(sw.mesh);
+          sw.geo && sw.geo.dispose();
+          sw.mat.dispose();
+          sw.mesh.geometry.dispose();
+          shockwaves.splice(i, 1);
+        }
+      }
+    }
+
+    // --- Remnant groups ---
+    const remnantGroup = new THREE.Group();
+    remnantGroup.visible = false;
+    scene.add(remnantGroup);
+
+    // White dwarf — Earth-sized, hot, with expanding planetary nebula
+    const wdGroup = new THREE.Group();
+    const wdBody = new THREE.Mesh(
+      new THREE.SphereGeometry(0.5, 48, 48),
+      new THREE.MeshStandardMaterial({
+        color: 0xf5fbff, emissive: 0xb0d8ff, emissiveIntensity: 2.2,
+        roughness: 0.2, metalness: 0.2
+      })
+    );
+    wdGroup.add(wdBody);
+    // Intense corona
+    const wdCorona = new THREE.Mesh(
+      new THREE.SphereGeometry(0.72, 32, 32),
+      new THREE.MeshBasicMaterial({
+        color: 0xc8e8ff, transparent: true, opacity: 0.45,
+        side: THREE.BackSide, depthWrite: false, blending: THREE.AdditiveBlending
+      })
+    );
+    wdGroup.add(wdCorona);
+    // Planetary nebula shells (OIII teal + H-alpha pink — real nebula emission cues)
+    const wdShellMats = [];
+    for (let i = 0; i < 5; i++) {
+      const col = i % 2 === 0 ? 0x66e0c8 : 0xff88aa;
+      const mat = new THREE.MeshBasicMaterial({
+        color: col, transparent: true, opacity: 0.16 - i * 0.022,
+        side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending
+      });
+      wdShellMats.push(mat);
+      const shell = new THREE.Mesh(new THREE.SphereGeometry(1.35 + i * 0.85, 48, 48), mat);
+      shell.scale.y = 0.88 + i * 0.03; // slight polar flattening of outer shells
+      wdGroup.add(shell);
+    }
+    remnantGroup.add(wdGroup);
+
+    // Neutron star — city-sized, extreme density, lighthouse beams
+    const nsGroup = new THREE.Group();
+    const nsBody = new THREE.Mesh(
+      new THREE.SphereGeometry(0.32, 48, 48),
+      new THREE.MeshStandardMaterial({
+        color: 0xe8f4ff, emissive: 0xaaccff, emissiveIntensity: 3.4,
+        roughness: 0.12, metalness: 0.35
+      })
+    );
+    nsGroup.add(nsBody);
+    const nsCorona = new THREE.Mesh(
+      new THREE.SphereGeometry(0.5, 24, 24),
+      new THREE.MeshBasicMaterial({
+        color: 0xb8d8ff, transparent: true, opacity: 0.5,
+        side: THREE.BackSide, depthWrite: false, blending: THREE.AdditiveBlending
+      })
+    );
+    nsGroup.add(nsCorona);
+    // Pulsar beams (magnetically collimated)
+    const beamMat = new THREE.MeshBasicMaterial({
+      color: 0xc4e0ff, transparent: true, opacity: 0.55,
+      depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide
+    });
+    const beamGeo = new THREE.ConeGeometry(0.42, 6.5, 20, 1, true);
+    const beam1 = new THREE.Mesh(beamGeo, beamMat);
+    beam1.position.y = 3.35;
+    const beam2 = beam1.clone();
+    beam2.rotation.z = Math.PI;
+    beam2.position.y = -3.35;
+    nsGroup.add(beam1, beam2);
+    // Outer beam glow cones
+    const beamGlowMat = new THREE.MeshBasicMaterial({
+      color: 0x88bbff, transparent: true, opacity: 0.18,
+      depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide
+    });
+    const beamGlow1 = new THREE.Mesh(new THREE.ConeGeometry(0.75, 7.5, 16, 1, true), beamGlowMat);
+    beamGlow1.position.y = 3.6;
+    const beamGlow2 = beamGlow1.clone();
+    beamGlow2.rotation.z = Math.PI;
+    beamGlow2.position.y = -3.6;
+    nsGroup.add(beamGlow1, beamGlow2);
+    // Magnetic field tori (more rings, tilted)
+    for (let i = 0; i < 5; i++) {
+      const torus = new THREE.Mesh(
+        new THREE.TorusGeometry(0.65 + i * 0.38, 0.025, 10, 64),
+        new THREE.MeshBasicMaterial({
+          color: 0x99ccff, transparent: true, opacity: 0.38 - i * 0.055,
+          blending: THREE.AdditiveBlending, depthWrite: false
+        })
+      );
+      torus.rotation.x = Math.PI / 2 + i * 0.18;
+      torus.rotation.z = i * 0.15;
+      nsGroup.add(torus);
+    }
+    remnantGroup.add(nsGroup);
+
+    // Black hole — event horizon + photon ring + accretion disk (EHT-inspired cues)
+    const bhGroup = new THREE.Group();
+    const horizon = new THREE.Mesh(
+      new THREE.SphereGeometry(0.72, 64, 64),
+      new THREE.MeshBasicMaterial({ color: 0x000000 })
+    );
+    bhGroup.add(horizon);
+    // Shadow fringe (dark soft rim just outside horizon)
+    const shadowFringe = new THREE.Mesh(
+      new THREE.SphereGeometry(0.82, 48, 48),
+      new THREE.MeshBasicMaterial({
+        color: 0x050508, transparent: true, opacity: 0.55,
+        side: THREE.BackSide, depthWrite: false
+      })
+    );
+    bhGroup.add(shadowFringe);
+    // Bright photon ring (unstable photon orbit ~1.5 Rs)
+    const photonRing = new THREE.Mesh(
+      new THREE.TorusGeometry(1.08, 0.055, 20, 96),
+      new THREE.MeshBasicMaterial({
+        color: 0xfff8e8, transparent: true, opacity: 1.0,
+        blending: THREE.AdditiveBlending, depthWrite: false
+      })
+    );
+    photonRing.rotation.x = Math.PI / 2;
+    bhGroup.add(photonRing);
+    const photonRing2 = new THREE.Mesh(
+      new THREE.TorusGeometry(1.22, 0.03, 12, 80),
+      new THREE.MeshBasicMaterial({
+        color: 0xffd8a0, transparent: true, opacity: 0.55,
+        blending: THREE.AdditiveBlending, depthWrite: false
+      })
+    );
+    photonRing2.rotation.x = Math.PI / 2;
+    bhGroup.add(photonRing2);
+    const photonRing3 = new THREE.Mesh(
+      new THREE.TorusGeometry(1.35, 0.018, 8, 64),
+      new THREE.MeshBasicMaterial({
+        color: 0xffb070, transparent: true, opacity: 0.28,
+        blending: THREE.AdditiveBlending, depthWrite: false
+      })
+    );
+    photonRing3.rotation.x = Math.PI / 2;
+    bhGroup.add(photonRing3);
+    // --- Accretion flow (thin-disk cues) ---
+    // Schwarzschild Rs ≈ 0.72 in these units → photon sphere ~1.08, ISCO ~2.16.
+    // Moderately spinning hole: inner disk can sit closer; we place the bright inner edge
+    // near ~1.45 (between photon ring and Schwarzschild ISCO) for an EHT-like look.
+    const DISK_R_IN = 1.45;
+    const DISK_R_OUT = 4.2;
+
+    // Specific thin-disk temperature gradient (Shakura–Sunyaev cue):
+    // T(r) ∝ r^{-3/4}. Zones are labeled by approximate effective temperature
+    // for a stellar-mass / AGN-scale educational mapping (not absolute Kelvin for one mass).
+    //   Zone A  r_in–1.8   : ≳ few×10^6–10^7 K  → soft X-ray / extreme UV (blue-white)
+    //   Zone B  1.8–2.5    : ~10^5–10^6 K        → UV / blue
+    //   Zone C  2.5–3.3    : ~10^4–10^5 K        → optical white–yellow
+    //   Zone D  3.3–r_out  : ≲ few×10^4 K        → orange → deep red / IR
+    function tempFromRadius(r, rIn, rOut) {
+      // Normalized radial coordinate; avoid singularity at r=0
+      const rn = Math.max(r, rIn) / rIn;
+      // T ∝ r^{-3/4}, scaled so T(rIn)=1, T(rOut)≈0.12
+      const tProf = Math.pow(rn, -0.75);
+      const tOut = Math.pow(rOut / rIn, -0.75);
+      return (tProf - tOut) / (1 - tOut + 1e-6); // 1 at inner edge → 0 at outer
+    }
+
+    function blackbodyishRGB(tNorm) {
+      // Map normalized temperature 0..1 to approximate blackbody-ish display colors
+      // tNorm=1 (hottest) → blue-white; tNorm=0 (coolest) → deep red
+      const t = Math.max(0, Math.min(1, tNorm));
+      let R, G, B;
+      if (t > 0.75) {
+        // Zone A: blue-white
+        const u = (t - 0.75) / 0.25;
+        R = 0.75 + 0.25 * u;
+        G = 0.85 + 0.15 * u;
+        B = 1.0;
+      } else if (t > 0.5) {
+        // Zone B: UV/blue → white
+        const u = (t - 0.5) / 0.25;
+        R = 0.55 + 0.25 * u;
+        G = 0.7 + 0.2 * u;
+        B = 1.0;
+      } else if (t > 0.28) {
+        // Zone C: yellow-white optical
+        const u = (t - 0.28) / 0.22;
+        R = 1.0;
+        G = 0.85 + 0.1 * u;
+        B = 0.45 + 0.4 * u;
+      } else {
+        // Zone D: orange → red / IR
+        const u = t / 0.28;
+        R = 0.95 + 0.05 * u;
+        G = 0.25 + 0.45 * u;
+        B = 0.08 + 0.2 * u;
+      }
+      // Boost brightness with temperature
+      const boost = 0.55 + 0.55 * t;
+      return [R * boost, G * boost, B * boost];
+    }
+
+    function buildDiskColors(geo, rIn, rOut) {
+      const cols = [];
+      const pos = geo.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        const x = pos.getX(i), y = pos.getY(i);
+        const r = Math.hypot(x, y);
+        const tNorm = tempFromRadius(r, rIn, rOut);
+        const [R, G, B] = blackbodyishRGB(tNorm);
+        cols.push(R, G, B);
+      }
+      return cols;
+    }
+
+    // Main thin disk
+    const diskGeo = new THREE.RingGeometry(DISK_R_IN, DISK_R_OUT, 160, 4);
+    const diskMat = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.9,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      vertexColors: true
+    });
+    diskGeo.setAttribute('color', new THREE.Float32BufferAttribute(
+      buildDiskColors(diskGeo, DISK_R_IN, DISK_R_OUT), 3
+    ));
+    const disk = new THREE.Mesh(diskGeo, diskMat);
+    disk.rotation.x = -Math.PI / 2.32;
+    bhGroup.add(disk);
+
+    // Inner hot annulus (near-ISCO / plunging-region glow)
+    const innerDiskGeo = new THREE.RingGeometry(DISK_R_IN, DISK_R_IN + 0.55, 96, 1);
+    const innerDiskMat = new THREE.MeshBasicMaterial({
+      color: 0xe8f4ff, transparent: true, opacity: 0.55,
+      side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending
+    });
+    const diskInner = new THREE.Mesh(innerDiskGeo, innerDiskMat);
+    diskInner.rotation.x = -Math.PI / 2.32;
+    diskInner.position.y = 0.02;
+    bhGroup.add(diskInner);
+
+    // Explicit temperature-zone boundary rings (educational markers)
+    // Radii chosen to match Zone A/B/C/D edges above
+    const tempZoneSpecs = [
+      { r: 1.8, color: 0xb8d4ff, op: 0.55 }, // A→B  (X-ray/UV → UV/blue)
+      { r: 2.5, color: 0xfff0c8, op: 0.45 }, // B→C  (UV → optical)
+      { r: 3.3, color: 0xff9040, op: 0.4 }   // C→D  (optical → IR)
+    ];
+    tempZoneSpecs.forEach(z => {
+      // RingGeometry lives in XY; apply same tilt as the accretion disk
+      const ring = new THREE.Mesh(
+        new THREE.RingGeometry(z.r - 0.02, z.r + 0.02, 80),
+        new THREE.MeshBasicMaterial({
+          color: z.color, transparent: true, opacity: z.op,
+          side: THREE.DoubleSide,
+          blending: THREE.AdditiveBlending, depthWrite: false
+        })
+      );
+      ring.rotation.x = -Math.PI / 2.32;
+      ring.position.y = 0.035;
+      bhGroup.add(ring);
+    });
+
+    // Upper / lower atmosphere layers (disk "atmosphere" / corona scatter)
+    const disk2 = new THREE.Mesh(
+      new THREE.RingGeometry(DISK_R_IN + 0.15, DISK_R_OUT - 0.3, 128, 2),
+      new THREE.MeshBasicMaterial({
+        color: 0xffc090, transparent: true, opacity: 0.22,
+        side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending
+      })
+    );
+    disk2.rotation.x = -Math.PI / 2.32;
+    disk2.position.y = 0.07;
+    bhGroup.add(disk2);
+    const disk3 = disk2.clone();
+    disk3.position.y = -0.05;
+    disk3.material = disk2.material.clone();
+    disk3.material.opacity = 0.14;
+    bhGroup.add(disk3);
+
+    // Spiral density-wave arms (XY plane, same tilt as disk)
+    const spiralGroup = new THREE.Group();
+    for (let arm = 0; arm < 2; arm++) {
+      const pts = [];
+      const armPhase = arm * Math.PI;
+      for (let k = 0; k <= 40; k++) {
+        const t = k / 40;
+        const r = DISK_R_IN + 0.25 + t * (DISK_R_OUT - DISK_R_IN - 0.5);
+        const ang = armPhase + t * 3.0;
+        // Build in XY so rotation.x matches disk
+        pts.push(new THREE.Vector3(Math.cos(ang) * r, Math.sin(ang) * r, 0.02));
+      }
+      const curve = new THREE.CatmullRomCurve3(pts);
+      const tube = new THREE.Mesh(
+        new THREE.TubeGeometry(curve, 48, 0.035 + arm * 0.012, 6, false),
+        new THREE.MeshBasicMaterial({
+          color: arm === 0 ? 0xffe0b0 : 0xffaa66,
+          transparent: true, opacity: 0.32,
+          blending: THREE.AdditiveBlending, depthWrite: false
+        })
+      );
+      spiralGroup.add(tube);
+    }
+    spiralGroup.rotation.x = -Math.PI / 2.32;
+    bhGroup.add(spiralGroup);
+
+    // Doppler hotspot: approaching side of the disk is brighter (relativistic beaming cue)
+    const hotspot = new THREE.Mesh(
+      new THREE.SphereGeometry(0.2, 16, 16),
+      new THREE.MeshBasicMaterial({
+        color: 0xffffff, transparent: true, opacity: 1.0,
+        blending: THREE.AdditiveBlending, depthWrite: false
+      })
+    );
+    bhGroup.add(hotspot);
+    const hotspotGlow = new THREE.Mesh(
+      new THREE.SphereGeometry(0.45, 12, 12),
+      new THREE.MeshBasicMaterial({
+        color: 0xfff0d0, transparent: true, opacity: 0.4,
+        blending: THREE.AdditiveBlending, depthWrite: false
+      })
+    );
+    bhGroup.add(hotspotGlow);
+    // Receding-side dimmer companion (contrast for Doppler asymmetry)
+    const coldSpot = new THREE.Mesh(
+      new THREE.SphereGeometry(0.16, 12, 12),
+      new THREE.MeshBasicMaterial({
+        color: 0xff7040, transparent: true, opacity: 0.25,
+        blending: THREE.AdditiveBlending, depthWrite: false
+      })
+    );
+    bhGroup.add(coldSpot);
+
+    // Compact corona haze above the hole
+    const corona = new THREE.Mesh(
+      new THREE.SphereGeometry(1.6, 24, 24),
+      new THREE.MeshBasicMaterial({
+        color: 0xa0c8ff, transparent: true, opacity: 0.07,
+        side: THREE.BackSide, depthWrite: false, blending: THREE.AdditiveBlending
+      })
+    );
+    bhGroup.add(corona);
+
+    remnantGroup.add(bhGroup);
+
+    function showRemnant(type) {
+      remnantGroup.visible = true;
+      wdGroup.visible = type === 'wd';
+      nsGroup.visible = type === 'ns';
+      bhGroup.visible = (type === 'bh' || type === 'smbh');
+      starGroup.visible = false;
+      coreMesh.visible = false;
+      if (typeof coreGlow !== 'undefined') coreGlow.visible = false;
+      remnantGroup.position.set(0, 0, 0);
+      // Supermassive: larger horizon presentation
+      if (type === 'smbh') {
+        remnantGroup.scale.setScalar(1.45);
+        if (typeof diskMat !== 'undefined') diskMat.opacity = 0.92;
+      } else {
+        remnantGroup.scale.setScalar(1);
+        if (typeof diskMat !== 'undefined') diskMat.opacity = 0.82;
+      }
+    }
+
+    function hideRemnant() {
+      remnantGroup.visible = false;
+      remnantGroup.scale.setScalar(1);
+      starGroup.visible = true;
+    }
+
+    function updateStarAppearance(mass, giant) {
+      if (typeof starMat === 'undefined' || !starGroup) return;
+      // Fixed display size (no mass-based size control) — only giant expansion scales
+      const FIXED_BASE = 1.05;
+      const sp = getSpectralType(mass);
+      let { color, emissive } = SPECTRAL_COLORS[sp];
+
+      // Red giant / supergiant: photosphere cools toward K/M
+      if (giant > 1.8) {
+        const t = Math.min(1, (giant - 1.8) / 1.4);
+        color = lerpColor(color, SPECTRAL_COLORS.M.color, t);
+        emissive = lerpColor(emissive, SPECTRAL_COLORS.M.emissive, t);
+      }
+      starMat.color.setHex(color);
+      starMat.emissive.setHex(emissive);
+      starMat.emissiveIntensity = 0.9 + Math.min(0.45, (giant - 1) * 0.12) + coreBrightness * 0.08;
+      glowMats.forEach((m, i) => {
+        m.color.setHex(emissive);
+        m.opacity = (0.18 - i * 0.03) * Math.min(1.35, 0.65 + giant * 0.18);
+      });
+      const targetScale = FIXED_BASE * (isFinite(giant) ? giant : 1);
+      const cur = (starGroup.scale && isFinite(starGroup.scale.x) && starGroup.scale.x > 0) ? starGroup.scale.x : FIXED_BASE;
+      const s = cur + (targetScale - cur) * 0.18;
+      starGroup.scale.setScalar(Math.max(0.05, s));
+      starGroup.position.set(0, 0, 0);
+      keyLight.color.setHex(emissive);
+      keyLight.intensity = 0.9 + coreBrightness * 0.55;
+      if (typeof fillLight !== 'undefined') fillLight.intensity = 0.2 + Math.max(0, giant - 1) * 0.08;
+    }
+
+    function lerpColor(a, b, t) {
+      const ar = (a >> 16) & 255, ag = (a >> 8) & 255, ab = a & 255;
+      const br = (b >> 16) & 255, bg = (b >> 8) & 255, bb = b & 255;
+      const r = Math.round(ar + (br - ar) * t);
+      const g = Math.round(ag + (bg - ag) * t);
+      const bl = Math.round(ab + (bb - ab) * t);
+      return (r << 16) | (g << 8) | bl;
+    }
+
+    function resizeRenderer() {
+      const parent = canvas.parentElement;
+      if (!parent) return;
+      const w = parent.clientWidth;
+      const h = parent.clientHeight;
+      if (w < 1 || h < 1) return;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h, false);
+    }
+    window.addEventListener('resize', () => { resizeRenderer(); if (!animating) renderOnce(); });
+    resizeRenderer();
+
+    function renderOnce() {
+      if (typeof renderer === 'undefined' || !renderer) return;
+      try { renderer.render(scene, camera); } catch (e) {}
+    }
+
+    // Flash overlay via renderer clear / scene background intensity
+    const flashLight = new THREE.PointLight(0xfff8e8, 0, 100);
+    scene.add(flashLight);
+
+    function setFlash(v) {
+      flashIntensity = v;
+      flashLight.intensity = v * 12;
+      flashLight.distance = 50 + v * 50;
+      flashLight.color.setHex(v > 0.6 ? 0xf0f8ff : 0xfff0d8);
+      renderer.toneMappingExposure = 1.18 + v * 0.55;
+    }
+
+    // Easing
+    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+    function easeInCubic(t) { return t * t * t; }
+    function easeOutBack(t) {
+      const c1 = 1.70158, c3 = c1 + 1;
+      return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+    }
+
+    // --- Reset / Run ---
+    function resetSim() {
+      animating = false;
+      idleRemnant = false;
+      if (mainRaf) { cancelAnimationFrame(mainRaf); mainRaf = null; }
+      if (idleRaf) { cancelAnimationFrame(idleRaf); idleRaf = null; }
+      clearSimTimers();
+      simBtn.disabled = false;
+      resetBtn.disabled = true;
+      currentStage = 'ready';
+      currentStageIdx = -1;
+      stageLabel.textContent = 'Ready';
+      if (captionFadeTimer) { clearTimeout(captionFadeTimer); captionFadeTimer = null; }
+      if (stageCaption) {
+        stageCaption.textContent = smbhMode
+          ? 'Supermassive BH ready — press Simulate.'
+          : 'Pick a mass — then Simulate';
+        stageCaption.classList.remove('faded');
+      }
+      massSlider.disabled = !!smbhMode;
+      if (outcomeBadge) outcomeBadge.className = 'outcome-badge';
+      if (progressBar) progressBar.style.width = '0%';
+      clearParticles();
+      while (shockwaves.length) {
+        const sw = shockwaves.pop();
+        try {
+          scene.remove(sw.mesh);
+          if (sw.mesh.geometry) sw.mesh.geometry.dispose();
+          if (sw.mat) sw.mat.dispose();
+        } catch (e) {}
+      }
+      giantFactor = 1;
+      explosionProgress = 0;
+      remnantAlpha = 0;
+      remnantScale = 0;
+      bhHorizon = 0;
+      setFlash(0);
+      renderer.toneMappingExposure = 1.18;
+      envelopeAlpha = 1;
+      coreBrightness = 1;
+      cameraZoom = 1;
+      targetZoom = 1;
+      camera.position.set(0, 1.35, 14); camTargetX = 0; camTargetY = 1.35; camTargetZ = 14;
+      hideRemnant();
+      coreMesh.visible = false;
+      if (typeof coreGlow !== 'undefined') coreGlow.visible = false;
+      starMat.transparent = false;
+      starMat.opacity = 1;
+      coreMat.emissiveIntensity = 2.4;
+      if (smbhMode) {
+        starGroup.visible = false;
+        showRemnant('smbh');
+        remnantGroup.scale.setScalar(1.4);
+        updateFate(1e8);
+        updateSpectralLabel(1e8);
+      } else {
+        starMesh.visible = true;
+        starGroup.visible = true;
+        starGroup.scale.setScalar(1.05);
+        starGroup.rotation.set(0, 0, 0);
+        const m = parseFloat(massSlider.value);
+        updateFate(m);
+        updateSpectralLabel(m);
+        updateStarAppearance(m, 1);
+      }
+      centerStarView();
+      renderOnce();
+    }
+
+    function showOutcome() {
+      const badgeType = remnantType === 'smbh' ? 'bh' : remnantType;
+      outcomeBadge.className = 'outcome-badge visible ' + badgeType;
+      if (remnantType === 'wd') outcomeBadge.textContent = 'WHITE DWARF';
+      else if (remnantType === 'ns') outcomeBadge.textContent = 'NEUTRON STAR';
+      else if (remnantType === 'smbh') outcomeBadge.textContent = 'SUPERMASSIVE BLACK HOLE';
+      else outcomeBadge.textContent = 'BLACK HOLE';
+    }
+
+    function runSimulation() {
+      if (animating) return;
+      if (typeof THREE === 'undefined' || typeof scene === 'undefined') {
+        if (stageCaption) stageCaption.textContent = '3D engine failed to load.';
+        return;
+      }
+      ensureAudio();
+      idleRemnant = false;
+      if (idleRaf) { cancelAnimationFrame(idleRaf); idleRaf = null; }
+      if (mainRaf) { cancelAnimationFrame(mainRaf); mainRaf = null; }
+      clearSimTimers();
+      clearParticles();
+      while (shockwaves.length) {
+        const sw = shockwaves.pop();
+        try {
+          scene.remove(sw.mesh);
+          if (sw.mesh.geometry) sw.mesh.geometry.dispose();
+          if (sw.mat) sw.mat.dispose();
+        } catch (e) {}
+      }
+
+      animating = true;
+      massSlider.disabled = true;
+      simBtn.disabled = true;
+      resetBtn.disabled = false;
+      giantFactor = 1;
+      explosionProgress = 0;
+      remnantAlpha = 0;
+      remnantScale = 0;
+      bhHorizon = 0;
+      setFlash(0);
+      envelopeAlpha = 1;
+      coreBrightness = 1;
+      cameraZoom = 1;
+      targetZoom = 1;
+      hideRemnant();
+      coreMesh.visible = false;
+      if (typeof coreGlow !== 'undefined') coreGlow.visible = false;
+      starMesh.visible = true;
+      starGroup.visible = true;
+      starGroup.rotation.set(0, 0, 0);
+      starMat.transparent = false;
+      starMat.opacity = 1;
+      coreMat.emissiveIntensity = 2.4;
+
+      simMass = smbhMode ? 1e8 : parseFloat(massSlider.value);
+      remnantType = getOutcome(simMass);
+      if (!smbhMode) updateStarAppearance(simMass, 1);
+      currentStageIdx = 0;
+      stageStart = performance.now();
+      clock = performance.now();
+      centerStarView();
+
+      const isWD = remnantType === 'wd';
+      const isBH = remnantType === 'bh' || remnantType === 'smbh';
+      const isSMBH = remnantType === 'smbh';
+
+      // Supermassive BH: dedicated AGN sequence (not stellar collapse)
+      if (isSMBH) {
+        starGroup.visible = false;
+        showRemnant('smbh');
+        remnantGroup.scale.setScalar(0.2);
+        remnantAlpha = 0;
+        currentStage = 'SMBH Ignition';
+        stageLabel.textContent = 'SMBH · Accretion Ignition';
+        showCaption('Disk ignites. Matter spirals in.');
+        progressBar.style.width = '15%';
+        spawnParticles(200, 'bh', 0.5, 2.0);
+        let smbhT0 = performance.now();
+        function smbhLoop(now) {
+          if (!animating) return;
+          const t = (now - smbhT0) / 1000;
+          const dt = Math.min(0.05, (now - clock) / 1000);
+          clock = now;
+          // Grow disk / horizon
+          const grow = Math.min(1, t / 3.5);
+          remnantGroup.scale.setScalar(0.25 + easeOutCubic(grow) * 1.3);
+          remnantAlpha = grow;
+          accretionAngle += 0.035;
+          disk.rotation.z += 0.03;
+          if (typeof diskInner !== 'undefined') diskInner.rotation.z += 0.045;
+          if (typeof spiralGroup !== 'undefined') spiralGroup.rotation.z += 0.02;
+          photonRing.rotation.z += 0.012;
+          const hx = Math.cos(accretionAngle) * 1.9;
+          const hz = Math.sin(accretionAngle) * 1.9 * 0.4;
+          hotspot.position.set(hx, 0.08, hz);
+          if (typeof hotspotGlow !== 'undefined') hotspotGlow.position.set(hx, 0.08, hz);
+          if (typeof coldSpot !== 'undefined') coldSpot.position.set(-hx, 0.05, -hz);
+          setFlash(0.15 + grow * 0.35);
+          if (t < 2.5 && Math.random() < 0.3) spawnParticles(4, 'bh', 0.4, 2.2);
+          if (t > 2.5 && t < 5 && Math.random() < 0.15) spawnParticles(3, 'bh', 0.25, 2.5);
+          // Camera gentle orbit, always centered on BH
+          camTargetX = Math.sin(now * 0.00015) * 2.2;
+          camTargetY = 1.5 + Math.sin(now * 0.0002) * 0.4;
+          camTargetZ = 16 - grow * 2;
+          camera.position.x += (camTargetX - camera.position.x) * 0.05;
+          camera.position.y += (camTargetY - camera.position.y) * 0.05;
+          camera.position.z += (camTargetZ - camera.position.z) * 0.05;
+          camera.lookAt(0, 0, 0);
+          updateParticles(dt);
+          updateShockwaves(dt * 60);
+          renderer.render(scene, camera);
+          if (t < 6) {
+            progressBar.style.width = Math.min(95, 15 + t * 12) + '%';
+            mainRaf = requestAnimationFrame(smbhLoop);
+          } else if (animating) {
+            animating = false;
+            idleRemnant = true;
+            setFlash(0);
+            renderer.toneMappingExposure = 1.18;
+            showOutcome();
+            stageLabel.textContent = 'Supermassive Black Hole · Active Nucleus';
+            showCaption('Active nucleus online.', 3000);
+            progressBar.style.width = '100%';
+            spawnParticles(60, 'bh', 0.35, 2.0);
+            startIdleLoop();
+          }
+        }
+        mainRaf = requestAnimationFrame(smbhLoop);
+        return;
+      }
+
+      function advanceStage() {
+        if (currentStageIdx >= STAGE_DEFS.length) {
+          animating = false;
+          idleRemnant = true;
+          remnantAlpha = 1;
+          remnantScale = 1;
+          explosionProgress = 1;
+          setFlash(0);
+          showRemnant(remnantType);
+          showOutcome();
+          stageLabel.textContent = remnantType === 'wd'
+            ? 'White Dwarf · Expanding Nebula'
+            : (remnantType === 'ns' ? 'Neutron Star · Expanding Remnant' : 'Black Hole · Accreting Debris');
+          showCaption(
+            remnantType === 'wd'
+              ? 'White dwarf secured. Nebula expands.'
+              : remnantType === 'ns'
+                ? 'Neutron star secured. Ejecta fly outward.'
+                : remnantType === 'smbh'
+                  ? 'Active nucleus online. Disk keeps feeding.'
+                  : 'Horizon locked. Debris keeps drifting.',
+            3000
+          );
+          // Keep expanding debris flowing
+          spawnParticles(80, remnantType === 'wd' ? 'wd' : (isBH ? 'bh' : 'sn'), 0.45, 1.5);
+          startIdleLoop();
+          return;
+        }
+        const s = STAGE_DEFS[currentStageIdx];
+        currentStage = s.name;
+        stageLabel.textContent = s.name;
+        if (stageCaption && s.caption) {
+          if (captionFadeTimer) { clearTimeout(captionFadeTimer); captionFadeTimer = null; }
+          stageCaption.textContent = s.caption;
+          stageCaption.classList.remove('faded');
+        }
+        progressBar.style.width = s.progress + '%';
+        stageStart = performance.now();
+
+        if (s.name === 'Core Collapse') {
+          targetZoom = 1.45;
+          playCollapseTone();
+          coreMesh.visible = true;
+        }
+        if (s.name === 'Shock Bounce') {
+          setFlash(0.95);
+          targetZoom = 1.1;
+          playBoom(isWD ? 0.55 : 1);
+          spawnShockwave(12, isWD ? 5.5 : (isBH ? 6.5 : 8), isWD ? 0xa0e0ff : 0xfff0c0, 0.08);
+          spawnParticles(isWD ? 120 : (isBH ? 180 : 280), isWD ? 'wd' : (isBH ? 'bh' : 'sn'), 0.7, 0.4);
+        }
+        if (s.name === 'Supernova Explosion') {
+          setFlash(1);
+          targetZoom = 0.72;
+          const count = isWD ? 500 : (isBH ? 700 : 1200);
+          spawnParticles(count, isWD ? 'wd' : (isBH ? 'bh' : 'sn'), isWD ? 1.0 : 1.5, 0.6);
+          spawnShockwave(18, isWD ? 7 : (isBH ? 8.5 : 10), isWD ? 0x70d4c8 : 0xc8e8ff, 0.1);
+          trackTimeout(() => {
+            if (!animating) return;
+            spawnShockwave(24, 6, isWD ? 0x70b8e0 : 0xffc878, 0.07);
+          }, 180);
+          trackTimeout(() => {
+            if (!animating) return;
+            spawnShockwave(30, 4.5, isWD ? 0x6090c0 : 0xff8040, 0.05);
+            spawnParticles(Math.floor(count * 0.4), isWD ? 'wd' : (isBH ? 'bh' : 'sn'), 0.9, 0.8);
+          }, 350);
+        }
+        if (s.name === 'Remnant Settles') {
+          targetZoom = 1.0;
+          remnantScale = 0.1;
+          remnantAlpha = 0;
+        }
+      }
+
+      advanceStage();
+
+      function loop(now) {
+        if (!animating) return;
+        const dt = Math.min(0.05, (now - clock) / 1000);
+        clock = now;
+        time = now;
+        const stage = STAGE_DEFS[currentStageIdx];
+        if (!stage) {
+          animating = false;
+          idleRemnant = true;
+          showRemnant(remnantType);
+          showOutcome();
+          startIdleLoop();
+          return;
+        }
+
+        const elapsed = now - stageStart;
+        const frac = Math.min(elapsed / stage.duration, 1);
+        cameraZoom += (targetZoom - cameraZoom) * 0.045;
+        camTargetZ = 14 / cameraZoom;
+        camTargetY = 1.35 / Math.sqrt(cameraZoom);
+        const orbit = now * 0.00012;
+        camTargetX = Math.sin(orbit) * 1.35;
+        // Critically damped-ish camera for smooth motion
+        camera.position.x += (camTargetX - camera.position.x) * 0.06;
+        camera.position.y += (camTargetY - camera.position.y) * 0.06;
+        camera.position.z += (camTargetZ - camera.position.z) * 0.06;
+        camera.lookAt(0, 0, 0);
+
+        if (stage.name === 'Main Sequence') {
+          giantFactor = 1;
+          updateStarAppearance(simMass, 1 + Math.sin(now * 0.004) * 0.02);
+        } else if (stage.name === 'Expanding to Giant') {
+          giantFactor = 1 + easeOutCubic(frac) * 2.15;
+          updateStarAppearance(simMass, giantFactor);
+          if (Math.random() < 0.12) spawnParticles(3, 'sn', 0.2, giantFactor * 0.4);
+        } else if (stage.name === 'Unstable Giant') {
+          giantFactor = 3.15 + Math.sin(now * 0.009) * 0.25;
+          coreBrightness = 1 + Math.sin(now * 0.011) * 0.4;
+          updateStarAppearance(simMass, giantFactor);
+          coreMesh.scale.setScalar(0.8 + coreBrightness * 0.15);
+        } else if (stage.name === 'Core Collapse') {
+          const e = easeInCubic(frac);
+          giantFactor = 3.15 - e * 2.8;
+          envelopeAlpha = 1 - e * 0.9;
+          coreBrightness = 1 + e * 4;
+          starMesh.visible = envelopeAlpha > 0.1;
+          starMat.opacity = Math.max(0.05, envelopeAlpha);
+          starMat.transparent = true;
+          coreMesh.visible = true;
+          coreGlow.visible = true;
+          coreMesh.scale.setScalar(Math.max(0.15, 1 - e * 0.7));
+          coreGlow.scale.setScalar(Math.max(0.2, 1.2 - e * 0.5));
+          coreMat.emissiveIntensity = 1.2 + e * 4.5;
+          coreGlowMat.opacity = 0.25 + e * 0.45;
+          updateStarAppearance(simMass, Math.max(0.35, giantFactor));
+          starGroup.rotation.y += 0.02 * e;
+          if (frac > 0.4 && Math.random() < 0.25) spawnParticles(6, remnantType === 'wd' ? 'wd' : 'sn', 0.35, 0.5);
+        } else if (stage.name === 'Shock Bounce') {
+          setFlash(Math.max(0, 0.95 - frac * 1.5));
+          coreBrightness = 4 - frac * 2;
+          coreMesh.scale.setScalar(0.35 + frac * 0.1);
+          giantFactor = 0.35;
+          updateStarAppearance(simMass, giantFactor);
+        } else if (stage.name === 'Supernova Explosion') {
+          explosionProgress = easeOutCubic(frac);
+          setFlash(Math.max(0, 1 - frac * 1.5));
+          starMesh.visible = false;
+          coreMesh.visible = frac < 0.5;
+          coreGlow.visible = frac < 0.45;
+          if (frac < 0.45) coreGlowMat.opacity = Math.max(0, 0.5 * (1 - frac * 2));
+          if (frac > 0.55) {
+            const rFrac = (frac - 0.55) / 0.45;
+            remnantAlpha = easeOutCubic(rFrac);
+            remnantScale = 0.2 + easeOutBack(Math.min(1, rFrac)) * 0.8;
+            showRemnant(remnantType);
+            remnantGroup.scale.setScalar(remnantScale);
+            remnantGroup.visible = true;
+          }
+          if (remnantType === 'bh' && frac > 0.4) {
+            bhHorizon = easeOutCubic((frac - 0.4) / 0.6);
+          }
+        } else if (stage.name === 'Remnant Settles') {
+          explosionProgress = 1;
+          remnantAlpha = Math.min(1, remnantAlpha + 0.04);
+          remnantScale += (1 - remnantScale) * 0.1;
+          setFlash(flashIntensity * 0.9);
+          showRemnant(remnantType);
+          remnantGroup.scale.setScalar(remnantScale);
+          if (Math.random() < 0.2) {
+            spawnParticles(4, remnantType === 'wd' ? 'wd' : (remnantType === 'bh' ? 'bh' : 'sn'), 0.35, 1.2);
+          }
+        }
+
+        // Animate remnants
+        accretionAngle += 0.03;
+        if (nsGroup.visible) {
+          nsGroup.rotation.y += 0.05;
+          beamMat.opacity = 0.45 + 0.2 * Math.sin(now * 0.012);
+        }
+        if (bhGroup.visible) {
+          disk.rotation.z += 0.03;
+          if (typeof diskInner !== 'undefined') diskInner.rotation.z += 0.045;
+          if (typeof disk2 !== 'undefined') disk2.rotation.z += 0.018;
+          if (typeof disk3 !== 'undefined') disk3.rotation.z += 0.014;
+          if (typeof spiralGroup !== 'undefined') spiralGroup.rotation.z += 0.02;
+          const hx = Math.cos(accretionAngle) * 1.9;
+          const hz = Math.sin(accretionAngle) * 1.9 * 0.4;
+          hotspot.position.set(hx, 0.08, hz);
+          if (typeof hotspotGlow !== 'undefined') hotspotGlow.position.set(hx, 0.08, hz);
+          if (typeof coldSpot !== 'undefined') coldSpot.position.set(-hx, 0.05, -hz);
+          photonRing.rotation.z += 0.012;
+          if (typeof photonRing2 !== 'undefined') photonRing2.rotation.z -= 0.007;
+          if (typeof photonRing3 !== 'undefined') photonRing3.rotation.z += 0.005;
+        }
+        if (wdGroup.visible) {
+          wdGroup.children.forEach((c, i) => {
+            if (i > 0) c.rotation.y += 0.004 * (i + 1);
+          });
+        }
+
+        updateParticles(dt);
+        updateShockwaves(dt * 60);
+        renderer.render(scene, camera);
+
+        if (frac >= 1) {
+          currentStageIdx++;
+          advanceStage();
+        }
+        mainRaf = requestAnimationFrame(loop);
+      }
+      mainRaf = requestAnimationFrame(loop);
+    }
+
+    function startIdleLoop() {
+      if (idleRaf) cancelAnimationFrame(idleRaf);
+      let last = performance.now();
+      function idleTick(now) {
+        if (!idleRemnant) return;
+        const dt = Math.min(0.05, (now - last) / 1000);
+        last = now;
+        time = now;
+        accretionAngle += 0.03;
+
+        // Continuous debris expansion into space
+        if (pCount < 2800 && Math.random() < 0.28) {
+          spawnParticles(4 + Math.floor(Math.random() * 6),
+            remnantType === 'wd' ? 'wd' : (remnantType === 'ns' ? 'sn' : 'bh'),
+            remnantType === 'wd' ? 0.25 : 0.35,
+            remnantType === 'smbh' ? 2.4 : (remnantType === 'wd' ? 2.0 : 1.6));
+        }
+
+        if (nsGroup.visible) {
+          nsGroup.rotation.y += 0.055;
+          // Beam pulse (lighthouse intensity)
+          const pulse = 0.45 + 0.25 * Math.sin(now * 0.012);
+          beamMat.opacity = pulse;
+          nsCorona.scale.setScalar(1 + 0.08 * Math.sin(now * 0.006));
+        }
+        if (bhGroup.visible) {
+          // Differential rotation: inner disk faster than outer (Keplerian cue)
+          disk.rotation.z += 0.032;
+          if (diskInner) diskInner.rotation.z += 0.048;
+          if (disk2) disk2.rotation.z += 0.02;
+          if (disk3) disk3.rotation.z += 0.016;
+          if (spiralGroup) spiralGroup.rotation.z += 0.022;
+          // Doppler pair: approaching (bright) vs receding (dim)
+          const rSpot = 1.9;
+          const hx = Math.cos(accretionAngle) * rSpot;
+          const hz = Math.sin(accretionAngle) * rSpot * 0.42;
+          hotspot.position.set(hx, 0.08, hz);
+          if (hotspotGlow) hotspotGlow.position.set(hx, 0.08, hz);
+          if (coldSpot) coldSpot.position.set(-hx, 0.05, -hz);
+          if (hotspot.material) hotspot.material.opacity = 0.85 + 0.15 * Math.sin(now * 0.01);
+          photonRing.rotation.z += 0.012;
+          if (photonRing2) photonRing2.rotation.z -= 0.008;
+          if (photonRing3) photonRing3.rotation.z += 0.006;
+          if (photonRing.material) photonRing.material.opacity = 0.85 + 0.15 * Math.sin(now * 0.008);
+          if (corona && corona.material) corona.material.opacity = 0.05 + 0.03 * Math.sin(now * 0.003);
+          const s = 1 + Math.sin(now * 0.0018) * 0.02;
+          horizon.scale.setScalar(s);
+          if (shadowFringe) shadowFringe.scale.setScalar(s);
+        }
+        if (wdGroup.visible) {
+          wdBody.scale.setScalar(1 + Math.sin(now * 0.003) * 0.03);
+          wdCorona.scale.setScalar(1 + 0.06 * Math.sin(now * 0.004));
+          // Expanding nebula pulse
+          wdGroup.children.forEach((c, i) => {
+            if (i >= 2) {
+              c.rotation.y += 0.003 * (i - 1);
+              c.rotation.z += 0.0015 * (i - 1);
+            }
+          });
+        }
+
+        // Wider cinematic drift for remnant majesty
+        const drift = remnantType === 'smbh' ? 2.2 : 1.85;
+        camTargetX = Math.sin(now * 0.00008) * drift;
+        camTargetY = 1.4 + Math.sin(now * 0.00015) * 0.45;
+        camTargetZ = remnantType === 'smbh' ? 15.5 : 13.5;
+        camera.position.x += (camTargetX - camera.position.x) * 0.04;
+        camera.position.y += (camTargetY - camera.position.y) * 0.04;
+        camera.position.z += (camTargetZ - camera.position.z) * 0.04;
+        camera.lookAt(0, 0, 0);
+
+        updateParticles(dt);
+        updateShockwaves(dt * 60);
+        renderer.render(scene, camera);
+        idleRaf = requestAnimationFrame(idleTick);
+      }
+      idleRaf = requestAnimationFrame(idleTick);
+    }
+
+    // Initial view — always centered
+    updateStarAppearance(12, 1);
+    centerStarView();
+    renderOnce();
+
+    // Expose for onclick handlers
+    window.runSimulation = runSimulation;
+    window.resetSim = resetSim;
+    window.setMass = setMass;
+    window.setSMBH = setSMBH;
+
+  </script>
+</body>
+</html>
